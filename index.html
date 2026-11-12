@@ -13,6 +13,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
 <style>
   :root{
     --naranja:#EE6A1C; --naranja-osc:#C9530F; --naranja-claro:#FFF2E8;
@@ -152,6 +154,25 @@
   .btn-ok:active{background:var(--naranja-osc)}
   .btn-sec{background:var(--gris);color:var(--texto)}
 
+  .offline{display:none;font-size:.72rem;font-weight:700;color:#fff;background:var(--texto-sec);border-radius:8px;padding:4px 7px;white-space:nowrap}
+  body.sin-red .offline{display:inline-block}
+  /* Capas */
+  .capa{display:flex;align-items:center;gap:12px;padding:11px 4px;border-top:1px solid var(--gris);cursor:pointer}
+  .capa:first-child{border-top:none}
+  .capa input{width:22px;height:22px;accent-color:var(--naranja);flex:none}
+  .capa b{display:block}
+  .capa small{color:var(--texto-sec);font-size:.8rem}
+  .seccion{font-size:.78rem;font-weight:700;color:var(--texto-sec);text-transform:uppercase;letter-spacing:.04em;margin:16px 0 4px}
+  .caja-desc{background:var(--gris);border-radius:12px;padding:12px;margin-top:6px}
+  .caja-desc p{font-size:.85rem;color:var(--texto-sec);margin-bottom:8px}
+  .caja-desc .fila-b{display:flex;gap:8px;flex-wrap:wrap}
+  .detalle{display:flex;gap:6px;margin:4px 0 10px}
+  .detalle button{flex:1;height:36px;border-radius:9px;border:1px solid var(--gris-medio);background:#fff;font:inherit;font-size:.82rem;font-weight:600;cursor:pointer;color:var(--texto-sec)}
+  .detalle button.on{border-color:var(--naranja);color:var(--texto);background:var(--naranja-claro)}
+  .progdesc{display:none;margin-top:10px}
+  .progdesc.ver{display:block}
+  .progdesc .prog{height:10px;margin:6px 0}
+  .progdesc .prog i{background:var(--naranja)}
   /* Nuevo punto */
   .tipos-sel{display:flex;flex-wrap:wrap;gap:8px}
   .tipos-sel button{display:flex;align-items:center;gap:8px;padding:8px 12px 8px 8px;border-radius:12px;border:2px solid var(--gris-medio);
@@ -216,6 +237,7 @@
 <header>
   <span class="jd-tile" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.5s-7-6.2-7-11.8a7 7 0 0 1 14 0c0 5.6-7 11.8-7 11.8z"/><path d="M12.9 5.8 10.4 10h2.6l-1.1 4 3.1-4.7h-2.6z"/></svg></span>
   <div class="logo">KMZ<span>rev</span></div>
+  <span class="offline" id="offline">Sin conexión</span>
   <button class="hbtn" id="bLista" aria-label="Lista de centros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg><span class="txt">Lista</span></button>
   <button class="hbtn" id="bMenu" aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
 </header>
@@ -306,6 +328,41 @@
   </div>
 </div>
 
+<!-- Capas y mapas sin conexión -->
+<div class="modal" id="mCapas">
+  <div class="hoja">
+    <div class="hoja-cab" style="align-items:center">
+      <div><h2>Mapa</h2></div>
+      <button class="x" id="kCerrar" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="scroll">
+      <div class="seccion" style="margin-top:6px">Fondo</div>
+      <div id="kBases"></div>
+      <div class="seccion">Encima</div>
+      <label class="capa"><input type="checkbox" id="kCatastro"><span><b>Parcelas del Catastro</b><small>Solo con conexión</small></span></label>
+      <div class="seccion">Mapas sin cobertura</div>
+      <div class="caja-desc">
+        <p id="kInfo">Descarga la <b>ortofoto o el mapa del IGN</b> de tu zona de trabajo para verlo sin conexión. Hazlo con wifi.</p>
+        <div class="detalle" id="kDetalle">
+          <button data-z="16">Detalle normal</button>
+          <button data-z="17" class="on">Detalle alto</button>
+          <button data-z="18">Máximo</button>
+        </div>
+        <div class="fila-b">
+          <button class="mini" id="kPuntos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.5s-7-6.2-7-11.8a7 7 0 0 1 14 0c0 5.6-7 11.8-7 11.8z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Alrededor de mis puntos</button>
+          <button class="mini" id="kVista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>Lo que veo en pantalla</button>
+        </div>
+        <div class="progdesc" id="kProg">
+          <div style="display:flex;justify-content:space-between;font-size:.85rem;font-weight:700"><span id="kProgTxt"></span><span id="kProgPct"></span></div>
+          <div class="prog"><i id="kProgBar"></i></div>
+          <button class="mini tenue" id="kCancelar" style="width:100%">Cancelar descarga</button>
+        </div>
+        <div class="fila-b" style="margin-top:8px"><button class="mini tenue" id="kBorrar">Borrar mapas descargados</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Nuevo / editar punto -->
 <div class="modal" id="mNuevo" style="z-index:2200">
   <div class="hoja">
@@ -364,12 +421,15 @@
       <button class="x" id="menuCerrar" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
     <div class="scroll" style="margin-top:8px">
+      <div class="caja-desc" id="mComoInstalar" style="display:none;margin:0 0 6px"><p style="margin:0"><b>Para instalarla:</b> en Chrome, menú ⋮ → <b>Instalar aplicación</b> (o "Añadir a pantalla de inicio"). En iPhone, Safari → Compartir → <b>Añadir a pantalla de inicio</b>.</p></div>
+      <button id="mInstalar" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M12 8v7M9 12l3 3 3-3"/></svg><span>Instalar en el móvil<small>Icono propio, pantalla completa y funciona sin cobertura</small></span></button>
       <button id="mCargar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 21h14"/></svg><span>Cargar KMZ / KML<small>Si ya había centros, se conserva el estado de los que coincidan</small></span></button>
       <button id="mExpKmz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6z"/></svg><span>Exportar KMZ<small>Con sus iconos y las posiciones corregidas; realizados con ✔</small></span></button>
       <button id="mExpCsv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4zM4 10h16M4 15h16M10 4v16"/></svg><span>Exportar Excel (CSV)<small>Listado con tipo, estado, fecha y observaciones</small></span></button>
       <button id="mBackup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span>Copia de seguridad<small>Guarda todo en un archivo .json</small></span></button>
       <button id="mRestaurar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg><span>Restaurar copia<small>Recupera un .json guardado (también en otro móvil)</small></span></button>
       <button id="mReset" class="rojo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg><span>Desmarcar todos<small>Pone todos como pendientes (las posiciones corregidas se mantienen)</small></span></button>
+      <div class="sub" id="mAlmacen" style="padding:10px 6px 0;margin:0;border-top:1px solid var(--gris)"></div>
       <button id="mBorrar" class="rojo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg><span>Quitar el KMZ<small>Borra los centros y su estado de este dispositivo</small></span></button>
     </div>
   </div>
@@ -664,7 +724,7 @@ function aplicarCarga(r){
     if(datos.estado[p.id]) nuevoEstado[p.id]=datos.estado[p.id]; });
   datos={archivo:r.nombre,cargado:new Date().toISOString(),puntos:r.puntos.concat(propios),lineas:r.lineas,estilos:r.estilos||{},estado:nuevoEstado};
   ocultos=new Set(); guardarOcultos();
-  guardar(); dibujarTodo(true);
+  guardar(); dibujarTodo(true); pedirPersistencia();
   aviso(r.puntos.length+' centros cargados'+(conservados?' · '+conservados+' con estado conservado':'')+(propios.length?' · '+propios.length+' creados por ti se mantienen':''));
 }
 $('fichero').addEventListener('change',async e=>{
@@ -680,11 +740,22 @@ $('mCargar').onclick=elegirArchivo;
 
 /* ================= Mapa ================= */
 const mapa=L.map('mapa',{zoomControl:true}).setView([38.6,-6.6],8);
-const capaCalles=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'});
-const capaSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'© Esri'});
+const IGN_WMTS=(serv,capa,fmt)=>'https://www.ign.es/wmts/'+serv+'?request=GetTile&service=WMTS&VERSION=1.0.0&Layer='+capa+'&Style=default&Format='+fmt+'&TileMatrixSet=GoogleMapsCompatible&TileMatrix={z}&TileRow={y}&TileCol={x}';
+const BASES={
+  calles:{nombre:'Callejero',desc:'OpenStreetMap',url:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',opt:{maxZoom:20,maxNativeZoom:19,attribution:'© OpenStreetMap'}},
+  pnoa:{nombre:'Ortofoto PNOA (IGN)',desc:'Foto aérea oficial de España · descargable',url:IGN_WMTS('pnoa-ma','OI.OrthoimageCoverage','image/jpeg'),opt:{maxZoom:20,maxNativeZoom:19,attribution:'PNOA © IGN'},descargable:true},
+  ign:{nombre:'Mapa IGN',desc:'Mapa topográfico con caminos · descargable',url:IGN_WMTS('ign-base','IGNBaseTodo','image/jpeg'),opt:{maxZoom:20,maxNativeZoom:17,attribution:'© IGN'},descargable:true},
+  sat:{nombre:'Satélite (Esri)',desc:'Imagen satélite mundial',url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',opt:{maxZoom:20,maxNativeZoom:19,attribution:'© Esri'}}
+};
+Object.values(BASES).forEach(b=>b.capa=L.tileLayer(b.url,b.opt));
 let capaBase='calles';
 try{ capaBase=localStorage.getItem('kmzrev:capa')||'calles'; }catch(e){}
-(capaBase==='sat'?capaSat:capaCalles).addTo(mapa);
+if(!BASES[capaBase]) capaBase='calles';
+BASES[capaBase].capa.addTo(mapa);
+const capaCatastro=L.tileLayer.wms('https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx',{layers:'Catastro',format:'image/png',transparent:true,maxZoom:20,attribution:'© Catastro',opacity:.85});
+let verCatastro=false;
+try{ verCatastro=localStorage.getItem('kmzrev:catastro')==='1'; }catch(e){}
+if(verCatastro) capaCatastro.addTo(mapa);
 
 const grupoLineas=L.layerGroup().addTo(mapa);
 const grupoPuntos=L.layerGroup().addTo(mapa);
@@ -767,18 +838,113 @@ const Ctl=L.Control.extend({options:{position:'topright'},onAdd(){
   L.DomEvent.disableClickPropagation(c); return c; }});
 mapa.addControl(new Ctl());
 function pintarControles(){
-  $('cCapa').classList.toggle('activo',capaBase==='sat');
+  $('cCapa').classList.toggle('activo',capaBase!=='calles'||verCatastro);
   $('cNombres').classList.toggle('activo',nombresVisibles);
   const nTipos=new Set(datos.puntos.map(p=>p.estilo||'_def')).size;
   $('cTipos').style.display=nTipos>1?'':'none';
   $('cTipos').classList.toggle('activo',ocultos.size>0);
 }
-$('cCapa').onclick=()=>{
-  if(capaBase==='sat'){ mapa.removeLayer(capaSat); capaCalles.addTo(mapa); capaBase='calles'; }
-  else { mapa.removeLayer(capaCalles); capaSat.addTo(mapa); capaBase='sat'; }
-  try{ localStorage.setItem('kmzrev:capa',capaBase); }catch(e){}
+$('cCapa').onclick=()=>{ pintarCapas(); infoDescargas(); abrir('mCapas'); };
+$('kCerrar').onclick=()=>cerrar('mCapas');
+function pintarCapas(){
+  $('kBases').innerHTML=Object.keys(BASES).map(k=>'<label class="capa"><input type="radio" name="base" value="'+k+'"'+(k===capaBase?' checked':'')+'><span><b>'+esc(BASES[k].nombre)+'</b><small>'+esc(BASES[k].desc)+'</small></span></label>').join('');
+  $('kCatastro').checked=verCatastro;
+}
+$('kBases').addEventListener('change',e=>{
+  const k=e.target.value; if(!BASES[k]||k===capaBase) return;
+  mapa.removeLayer(BASES[capaBase].capa); BASES[k].capa.addTo(mapa); BASES[k].capa.bringToBack&&BASES[k].capa.bringToBack(); capaBase=k;
+  try{ localStorage.setItem('kmzrev:capa',k); }catch(err){}
+  pintarControles(); infoDescargas();
+});
+$('kCatastro').addEventListener('change',()=>{
+  verCatastro=$('kCatastro').checked;
+  if(verCatastro) capaCatastro.addTo(mapa); else mapa.removeLayer(capaCatastro);
+  try{ localStorage.setItem('kmzrev:catastro',verCatastro?'1':'0'); }catch(err){}
   pintarControles();
-};
+});
+
+/* ================= Mapas sin conexión ================= */
+const CACHE_TESELAS='kmzrev-teselas';
+let zMaxDesc=17, descargando=null;
+$('kDetalle').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; zMaxDesc=+b.dataset.z;
+  $('kDetalle').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); });
+const lon2x=(lng,z)=>Math.floor((lng+180)/360*Math.pow(2,z));
+const lat2y=(lat,z)=>{ const r=lat*Math.PI/180; return Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*Math.pow(2,z)); };
+function teselasCaja(s,w,n,e,z,set){
+  const x0=lon2x(w,z),x1=lon2x(e,z),y0=lat2y(n,z),y1=lat2y(s,z);
+  for(let x=x0;x<=x1;x++) for(let y=y0;y<=y1;y++) set.add(z+'/'+x+'/'+y);
+}
+function urlTesela(base,t){ const [z,x,y]=t.split('/'); return BASES[base].url.replace('{z}',z).replace('{x}',x).replace('{y}',y); }
+function maxZBase(base){ return Math.min(zMaxDesc, BASES[base].opt.maxNativeZoom||19); }
+function planPuntos(base){
+  const set=new Set(), pts=datos.puntos.map(posDe); if(!pts.length) return set;
+  const la=pts.map(p=>p[0]), ln=pts.map(p=>p[1]);
+  const S=Math.min(...la)-.01,N=Math.max(...la)+.01,W=Math.min(...ln)-.01,E=Math.max(...ln)+.01;
+  for(let z=6;z<=12;z++) teselasCaja(S,W,N,E,z,set);              // vista general de toda la zona
+  const zm=maxZBase(base);
+  pts.forEach(([lat,lng])=>{                                       // detalle alrededor de cada punto
+    for(let z=13;z<=zm;z++){ const rad=z>=17?200:z>=15?400:800, dLat=rad/111320, dLng=dLat/Math.cos(lat*Math.PI/180);
+      teselasCaja(lat-dLat,lng-dLng,lat+dLat,lng+dLng,z,set); }
+  });
+  return set;
+}
+function planVista(base){
+  const set=new Set(), b=mapa.getBounds(), z0=Math.max(6,mapa.getZoom()-3), zm=Math.max(maxZBase(base),Math.min(mapa.getZoom(),19));
+  for(let z=z0;z<=zm;z++) teselasCaja(b.getSouth(),b.getWest(),b.getNorth(),b.getEast(),z,set);
+  return set;
+}
+async function infoDescargas(){
+  let txt='Descarga la <b>ortofoto o el mapa del IGN</b> de tu zona de trabajo para verlo sin conexión. Hazlo con wifi.';
+  if(!BASES[capaBase].descargable) txt='Para descargar, elige arriba <b>Ortofoto PNOA</b> o <b>Mapa IGN</b> (el resto de mapas no permiten descargarse).';
+  try{ if('caches' in window){ const n=(await (await caches.open(CACHE_TESELAS)).keys()).length; if(n) txt+='<br><br>Tienes <b>'+n.toLocaleString('es')+'</b> trozos de mapa descargados.'; } }catch(e){}
+  $('kInfo').innerHTML=txt;
+}
+async function descargar_(plan){
+  if(descargando) return;
+  if(!BASES[capaBase].descargable){ aviso('Elige primero Ortofoto PNOA o Mapa IGN'); return; }
+  if(!('caches' in window)){ aviso('Este navegador no permite guardar mapas'); return; }
+  const base=capaBase, lista=[...plan];
+  if(!lista.length){ aviso('No hay nada que descargar'); return; }
+  const MAX=25000;
+  if(lista.length>MAX){ aviso('Zona demasiado grande ('+lista.length.toLocaleString('es')+' trozos). Baja el detalle o acerca el mapa.'); return; }
+  const mb=Math.round(lista.length*(base==='pnoa'?0.022:0.015));
+  confirmar('Descargar mapa','Se descargarán '+lista.length.toLocaleString('es')+' trozos de "'+BASES[base].nombre+'" (unos '+mb+' MB). Mejor con wifi.',()=>ejecutarDescarga(base,lista),'Descargar');
+}
+async function ejecutarDescarga(base,lista){
+  const cache=await caches.open(CACHE_TESELAS);
+  descargando={cancelado:false}; const yo_=descargando;
+  let hechos=0, fallos=0, i=0;
+  $('kProg').classList.add('ver'); $('kPuntos').disabled=$('kVista').disabled=true;
+  const pintar=()=>{ $('kProgTxt').textContent='Descargando… '+hechos.toLocaleString('es')+' / '+lista.length.toLocaleString('es');
+    $('kProgPct').textContent=Math.round(hechos/lista.length*100)+'%'; $('kProgBar').style.width=(hechos/lista.length*100)+'%'; };
+  pintar();
+  pedirPersistencia();
+  async function trabajador(){
+    while(i<lista.length && !yo_.cancelado){
+      const url=urlTesela(base,lista[i++]);
+      try{
+        if(!(await cache.match(url))){
+          const r=await fetch(url,{mode:'cors',credentials:'omit'});
+          if(r.ok) await cache.put(url,r); else fallos++;
+        }
+      }catch(e){ fallos++; if(fallos>40 && fallos>hechos/2){ yo_.cancelado=true; yo_.error=true; } }
+      hechos++; if(hechos%10===0||hechos===lista.length) pintar();
+    }
+  }
+  await Promise.all(Array.from({length:6},trabajador));
+  descargando=null; $('kProg').classList.remove('ver'); $('kPuntos').disabled=$('kVista').disabled=false;
+  if(yo_.error) aviso('Descarga detenida: no se pudo conectar con el servidor del mapa');
+  else if(yo_.cancelado) aviso('Descarga cancelada ('+hechos.toLocaleString('es')+' trozos guardados)');
+  else aviso('Mapa descargado'+(fallos?' ('+fallos+' trozos no disponibles)':''));
+  infoDescargas(); mostrarAlmacen();
+}
+$('kPuntos').onclick=()=>{ if(!datos.puntos.length) return aviso('Primero carga un KMZ o crea puntos'); descargar_(planPuntos(capaBase)); };
+$('kVista').onclick=()=>descargar_(planVista(capaBase));
+$('kCancelar').onclick=()=>{ if(descargando) descargando.cancelado=true; };
+$('kBorrar').onclick=()=>confirmar('Borrar mapas descargados','Se borrarán los mapas guardados para usar sin conexión. Tus puntos no se tocan.',async()=>{
+  try{ await caches.delete(CACHE_TESELAS); await caches.delete('kmzrev-vistas'); }catch(e){}
+  infoDescargas(); mostrarAlmacen(); aviso('Mapas descargados borrados');
+},'Borrar');
 $('cNombres').onclick=()=>{
   nombresVisibles=!nombresVisibles; document.body.classList.toggle('sin-nombres',!nombresVisibles);
   try{ localStorage.setItem('kmzrev:nombres',nombresVisibles?'1':'0'); }catch(e){}
@@ -1049,6 +1215,9 @@ $('lCerrar').onclick=()=>cerrar('mLista');
 /* ================= Menú y exportaciones ================= */
 $('bMenu').onclick=()=>{
   $('menuArchivo').textContent=datos.archivo?('Archivo: '+datos.archivo+' · '+datos.puntos.length+' centros'):'Sin archivo cargado';
+  $('mInstalar').style.display=eventoInstalar?'':'none';
+  $('mComoInstalar').style.display=(!eventoInstalar && !instalada())?'':'none';
+  mostrarAlmacen();
   abrir('mMenu');
 };
 $('menuCerrar').onclick=()=>cerrar('mMenu');
@@ -1139,6 +1308,33 @@ $('mBorrar').onclick=()=>{
     datos=VACIO(); guardar(); cerrar('mMenu'); dibujarTodo(false);
   });
 };
+
+/* ================= App instalable ================= */
+let eventoInstalar=null;
+const instalada=()=>matchMedia('(display-mode: standalone)').matches || navigator.standalone===true;
+window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); eventoInstalar=e; });
+window.addEventListener('appinstalled',()=>{ eventoInstalar=null; aviso('KMZrev instalada en el móvil'); pedirPersistencia(); });
+$('mInstalar').onclick=async()=>{
+  if(!eventoInstalar) return; cerrar('mMenu');
+  eventoInstalar.prompt(); try{ await eventoInstalar.userChoice; }catch(e){} eventoInstalar=null;
+};
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  navigator.serviceWorker.register('sw.js').catch(e=>console.warn('SW',e));
+}
+function pedirPersistencia(){ try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){} }
+async function mostrarAlmacen(){
+  let t='';
+  try{
+    if(navigator.storage && navigator.storage.estimate){
+      const e=await navigator.storage.estimate(); const mb=x=>(x/1048576).toFixed(x<1048576*10?1:0).replace('.',',');
+      t='Espacio usado: '+mb(e.usage||0)+' MB';
+    }
+    if(navigator.storage && navigator.storage.persisted) t+=(t?' · ':'')+((await navigator.storage.persisted())?'Datos protegidos ✔':'Haz copias de seguridad de vez en cuando');
+  }catch(e){}
+  $('mAlmacen').textContent=t;
+}
+function estadoRed(){ document.body.classList.toggle('sin-red',!navigator.onLine); }
+window.addEventListener('online',estadoRed); window.addEventListener('offline',estadoRed); estadoRed();
 
 /* ================= Inicio ================= */
 async function inicio(){

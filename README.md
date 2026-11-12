@@ -4,6 +4,14 @@ Mapa de centros de transformación a partir de un archivo **KMZ / KML**, para ir
 
 **App:** https://jdevgpt.github.io/kmzrev/
 
+## Instalar en el móvil
+Abre https://jdevgpt.github.io/kmzrev/ en **Chrome** (Android) → menú ⋮ → **Instalar aplicación** (también aparece en el Menú de la app). En iPhone: Safari → Compartir → **Añadir a pantalla de inicio**.
+Una vez instalada se abre como una app y **funciona sin cobertura**.
+
+## Mapas sin cobertura
+Botón de **capas** del mapa: Callejero, **Ortofoto PNOA (IGN)**, **Mapa IGN**, Satélite y parcelas del **Catastro** (solo con conexión).
+Con Ortofoto PNOA o Mapa IGN elegido, en "Mapas sin cobertura" puedes descargar **alrededor de tus puntos** o **lo que ves en pantalla**, con tres niveles de detalle. Hazlo con wifi.
+
 ## Uso
 1. Abre la app y pulsa **Cargar KMZ / KML**.
 2. Toca un centro en el mapa (o búscalo en **Lista**) y pulsa **Pendiente → Realizado**. Se pone la fecha de hoy (editable) y puedes añadir observaciones.
