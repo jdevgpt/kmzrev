@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KMZrev">
+<title>KMZrev</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  :root{
+    --naranja:#EE6A1C; --naranja-osc:#C9530F; --naranja-claro:#FFF2E8;
+    --gris:#E9EBEE; --gris-medio:#DDE0E4; --texto:#262A2F; --texto-sec:#5E656E;
+    --blanco:#fff; --verde:#2E9E5B; --verde-claro:#E6F5EC; --rojo:#C0392B;
+    --cab:60px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:#F2F3F5;color:var(--texto);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-tap-highlight-color:transparent}
+  body{display:flex;flex-direction:column;overflow:hidden}
+  .barlow,h2,h3,.btn,.logo,.seg button{font-family:"Barlow","Segoe UI",system-ui,sans-serif}
+
+  /* Cabecera */
+  header{flex:none;height:var(--cab);background:var(--blanco);border-bottom:3px solid var(--naranja);
+    display:flex;align-items:center;gap:10px;padding:0 12px;z-index:1000}
+  .jd-tile{width:38px;height:38px;border-radius:10px;background:var(--naranja);color:#fff;display:grid;place-items:center;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
+  .jd-tile svg{width:22px;height:22px;display:block}
+  .logo{font-size:1.45rem;font-weight:700;margin-right:auto;white-space:nowrap}
+  .logo span{color:var(--naranja)}
+  .hbtn{height:38px;min-width:38px;padding:0 10px;border-radius:10px;border:none;background:var(--gris);
+    color:var(--texto);font:inherit;font-weight:600;font-size:.9rem;cursor:pointer;display:flex;align-items:center;gap:6px}
+  .hbtn:active{background:var(--gris-medio)}
+  .hbtn svg{width:20px;height:20px}
+  @media (max-width:380px){ .hbtn .txt{display:none} .logo{font-size:1.25rem} }
+
+  /* Mapa */
+  #mapa{flex:1;min-height:0;background:#e5e7ea}
+  .leaflet-control-zoom a,.leaflet-bar a{color:var(--texto)}
+  .leaflet-tooltip.etq{background:rgba(255,255,255,.92);border:1px solid var(--gris-medio);box-shadow:none;
+    font-weight:700;font-size:11px;padding:1px 5px;color:var(--texto)}
+  .leaflet-tooltip.etq.hecho{color:var(--verde)}
+  .leaflet-tooltip.etq:before{display:none}
+  .ctl-btn{width:42px;height:42px;background:#fff;border-radius:10px;border:none;display:grid;place-items:center;
+    cursor:pointer;box-shadow:0 1px 5px rgba(0,0,0,.3);color:var(--texto)}
+  .ctl-btn svg{width:22px;height:22px}
+  .ctl-btn.activo{color:var(--naranja)}
+  .yo{width:16px;height:16px;border-radius:50%;background:#2F7BEA;border:3px solid #fff;box-shadow:0 0 0 2px rgba(47,123,234,.35)}
+
+  /* Barra inferior */
+  .barra{flex:none;background:var(--blanco);border-top:1px solid var(--gris-medio);
+    padding:10px 12px calc(10px + env(safe-area-inset-bottom));z-index:1000}
+  .prog-fila{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .prog{flex:1;height:8px;border-radius:6px;background:var(--gris);overflow:hidden}
+  .prog i{display:block;height:100%;width:0;background:var(--verde);transition:width .3s}
+  .prog-txt{font-size:.85rem;font-weight:700;white-space:nowrap}
+  .prog-txt b{color:var(--verde)}
+  .fila2{display:flex;gap:8px;align-items:center}
+  .seg{display:flex;background:var(--gris);border-radius:10px;padding:3px;flex:1}
+  .seg button{flex:1;border:none;background:transparent;height:32px;border-radius:8px;font-weight:600;
+    font-size:.88rem;color:var(--texto-sec);cursor:pointer;white-space:nowrap}
+  .seg button.on{background:#fff;color:var(--texto);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+  @media (max-width:400px){ .seg button{font-size:.78rem} }
+  .jdev{font-family:"Barlow","Segoe UI",system-ui,sans-serif;font-weight:600;font-size:11px;letter-spacing:.05em;
+    opacity:.4;user-select:none;-webkit-user-select:none;white-space:nowrap}
+
+  /* Hojas / modales */
+  .modal{position:fixed;inset:0;background:rgba(38,42,47,.45);display:none;align-items:flex-end;justify-content:center;z-index:2000}
+  .modal.abierto{display:flex}
+  .hoja{background:var(--blanco);width:100%;max-width:640px;border-radius:20px 20px 0 0;max-height:88vh;
+    display:flex;flex-direction:column;border-top:4px solid var(--naranja);
+    padding:18px 16px calc(16px + env(safe-area-inset-bottom))}
+  .hoja h2{font-size:1.25rem;margin-bottom:2px;word-break:break-word}
+  .hoja .sub{color:var(--texto-sec);font-size:.85rem;margin-bottom:12px}
+  .scroll{overflow:auto;min-height:0;flex:1}
+  .estado-btn{width:100%;display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;border:2px solid var(--gris-medio);
+    background:var(--gris);cursor:pointer;font:inherit;text-align:left;margin:4px 0 12px}
+  .estado-btn .circ{width:30px;height:30px;border-radius:50%;border:2px solid var(--texto-sec);flex:none;display:grid;place-items:center;color:#fff}
+  .estado-btn b{font-size:1.05rem;display:block}
+  .estado-btn small{color:var(--texto-sec)}
+  .estado-btn.hecho{background:var(--verde-claro);border-color:var(--verde)}
+  .estado-btn.hecho .circ{background:var(--verde);border-color:var(--verde)}
+  label.lbl{display:block;font-size:.82rem;font-weight:700;color:var(--texto-sec);margin:10px 0 6px}
+  .campo{width:100%;min-height:46px;border:1px solid var(--gris-medio);border-radius:12px;padding:10px 14px;
+    font:inherit;font-size:1rem;background:#fff;color:var(--texto)}
+  textarea.campo{min-height:70px;resize:vertical}
+  .campo:focus{outline:none;border-color:var(--naranja);box-shadow:0 0 0 3px var(--naranja-claro)}
+  .datos{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:6px}
+  .datos td{padding:6px 4px;border-top:1px solid var(--gris);vertical-align:top;word-break:break-word}
+  .datos td:first-child{color:var(--texto-sec);font-weight:600;width:38%}
+  .botones{display:flex;gap:10px;margin-top:14px;flex:none}
+  .btn{flex:1;height:48px;border-radius:12px;border:none;font-weight:700;font-size:1rem;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
+  .btn-ok{background:var(--naranja);color:#fff}
+  .btn-ok:active{background:var(--naranja-osc)}
+  .btn-sec{background:var(--gris);color:var(--texto)}
+  .btn-peligro{background:#fff;color:var(--rojo);border:1px solid #E7C3BE}
+
+  /* Lista */
+  .busca{display:flex;gap:8px;margin-bottom:10px;flex:none}
+  .item{display:flex;align-items:center;gap:12px;padding:11px 4px;border-top:1px solid var(--gris);cursor:pointer}
+  .item:active{background:var(--gris)}
+  .punto{width:14px;height:14px;border-radius:50%;background:var(--naranja);flex:none;border:2px solid #fff;box-shadow:0 0 0 1px var(--naranja)}
+  .punto.hecho{background:var(--verde);box-shadow:0 0 0 1px var(--verde)}
+  .item .nom{font-weight:700}
+  .item .det{font-size:.8rem;color:var(--texto-sec)}
+  .item .dist{margin-left:auto;font-size:.8rem;color:var(--texto-sec);white-space:nowrap}
+  .grupo{font-size:.78rem;font-weight:700;color:var(--texto-sec);text-transform:uppercase;letter-spacing:.04em;padding:12px 4px 4px}
+
+  /* Menú */
+  .menu .scroll button{display:flex;align-items:center;gap:12px;width:100%;padding:14px 6px;border:none;background:none;
+    border-top:1px solid var(--gris);font:inherit;font-size:1rem;color:var(--texto);cursor:pointer;text-align:left;text-decoration:none}
+  .menu .scroll button:first-of-type{border-top:none}
+  .menu svg{width:22px;height:22px;color:var(--naranja);flex:none}
+  .menu small{display:block;color:var(--texto-sec);font-size:.8rem}
+  .menu .rojo,.menu .rojo svg{color:var(--rojo)}
+
+  /* Vacío */
+  .vacio{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:900;padding:20px;
+    background:rgba(242,243,245,.85)}
+  .vacio.ver{display:flex}
+  .vacio .caja{background:#fff;border-radius:16px;padding:26px 22px;text-align:center;max-width:360px;
+    border:2px dashed var(--gris-medio)}
+  .vacio .caja svg{width:48px;height:48px;color:var(--naranja);margin-bottom:8px}
+  .vacio h3{font-size:1.2rem;margin-bottom:6px}
+  .vacio p{color:var(--texto-sec);font-size:.9rem;margin-bottom:16px}
+  .zona{position:relative;flex:1;min-height:0;display:flex}
+
+  .toast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%) translateY(20px);background:var(--texto);color:#fff;
+    padding:10px 18px;border-radius:20px;font-size:.9rem;opacity:0;transition:.25s;pointer-events:none;z-index:3000;max-width:90vw;text-align:center}
+  .toast.ver{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="jd-tile" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.5s-7-6.2-7-11.8a7 7 0 0 1 14 0c0 5.6-7 11.8-7 11.8z"/><path d="M12.9 5.8 10.4 10h2.6l-1.1 4 3.1-4.7h-2.6z"/></svg></span>
+  <div class="logo">KMZ<span>rev</span></div>
+  <button class="hbtn" id="bLista" aria-label="Lista de centros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg><span class="txt">Lista</span></button>
+  <button class="hbtn" id="bMenu" aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+</header>
+
+<div class="zona">
+  <div id="mapa"></div>
+  <div class="vacio" id="vacio">
+    <div class="caja">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6z"/><path d="M9 4v14M15 6v14"/></svg>
+      <h3 class="barlow">Carga un archivo KMZ</h3>
+      <p>Abre el KMZ (o KML) con las ubicaciones de los centros de transformación para verlos en el mapa.</p>
+      <button class="btn btn-ok" id="bCargarVacio">Cargar KMZ / KML</button>
+    </div>
+  </div>
+</div>
+
+<div class="barra">
+  <div class="prog-fila">
+    <div class="prog"><i id="progBar"></i></div>
+    <div class="prog-txt" id="progTxt"><b>0</b> / 0 realizados</div>
+  </div>
+  <div class="fila2">
+    <div class="seg" id="filtro">
+      <button data-f="todos" class="on">Todos</button>
+      <button data-f="pend">Pendientes</button>
+      <button data-f="hecho">Realizados</button>
+    </div>
+    <span class="jdev" aria-hidden="true">JDev</span>
+  </div>
+</div>
+
+<input type="file" id="fichero" accept=".kmz,.kml,application/vnd.google-earth.kmz,application/vnd.google-earth.kml+xml" hidden>
+<input type="file" id="ficheroJson" accept=".json,application/json" hidden>
+
+<!-- Ficha de un centro -->
+<div class="modal" id="mFicha">
+  <div class="hoja">
+    <h2 id="fNombre"></h2>
+    <div class="sub" id="fSub"></div>
+    <div class="scroll">
+      <button class="estado-btn" id="fEstado">
+        <span class="circ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+        <span><b id="fEstadoTxt"></b><small id="fEstadoSub"></small></span>
+      </button>
+      <label class="lbl" for="fFecha">Fecha de realización</label>
+      <input type="date" class="campo" id="fFecha">
+      <label class="lbl" for="fNota">Observaciones</label>
+      <textarea class="campo" id="fNota" placeholder="Notas, incidencias…"></textarea>
+      <div id="fDatosCont"><label class="lbl">Datos del KMZ</label><table class="datos" id="fDatos"></table></div>
+    </div>
+    <div class="botones">
+      <a class="btn btn-sec" id="fRuta" target="_blank" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 21 3l-8 18-2-8z"/></svg>Cómo llegar</a>
+      <button class="btn btn-ok" id="fCerrar">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lista -->
+<div class="modal" id="mLista">
+  <div class="hoja" style="height:85vh">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex:none">
+      <h2>Centros</h2>
+      <button class="hbtn" id="lCerrar">Cerrar</button>
+    </div>
+    <div class="busca">
+      <input class="campo" id="lBusca" type="search" placeholder="Buscar centro…" autocomplete="off">
+    </div>
+    <div class="busca" id="lCarpetaCont" style="display:none">
+      <select class="campo" id="lCarpeta"></select>
+    </div>
+    <div class="scroll" id="lItems"></div>
+  </div>
+</div>
+
+<!-- Menú -->
+<div class="modal" id="mMenu">
+  <div class="hoja menu">
+    <h2 style="margin-bottom:8px">Menú</h2>
+    <div class="sub" id="menuArchivo"></div>
+    <div class="scroll">
+      <button id="mCargar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 21h14"/></svg><span>Cargar KMZ / KML<small>Si ya había centros, se conserva el estado de los que coincidan</small></span></button>
+      <button id="mExpKmz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6z"/></svg><span>Exportar KMZ<small>Con los realizados en verde, para Google Earth</small></span></button>
+      <button id="mExpCsv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4zM4 10h16M4 15h16M10 4v16"/></svg><span>Exportar Excel (CSV)<small>Listado con estado, fecha y observaciones</small></span></button>
+      <button id="mBackup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span>Copia de seguridad<small>Guarda todo en un archivo .json</small></span></button>
+      <button id="mRestaurar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg><span>Restaurar copia<small>Recupera un .json guardado (también en otro móvil)</small></span></button>
+      <button id="mReset" class="rojo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg><span>Desmarcar todos<small>Pone todos los centros como pendientes</small></span></button>
+      <button id="mBorrar" class="rojo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg><span>Quitar el KMZ<small>Borra los centros y su estado de este dispositivo</small></span></button>
+    </div>
+    <div class="botones"><button class="btn btn-sec" id="menuCerrar">Cerrar</button></div>
+  </div>
+</div>
+
+<!-- Confirmación -->
+<div class="modal" id="mConf">
+  <div class="hoja">
+    <h2 id="cTit"></h2>
+    <div class="sub" id="cTxt" style="margin:8px 0 4px;font-size:.95rem"></div>
+    <div class="botones">
+      <button class="btn btn-sec" id="cNo">Cancelar</button>
+      <button class="btn btn-ok" id="cSi">Aceptar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ================= Estado y almacenamiento ================= */
+const CLAVE = 'kmzrev:v1';
+let datos = { archivo:'', cargado:'', puntos:[], lineas:[], estado:{} };
+// puntos: {id,nombre,lat,lng,carpeta,info:[[k,v]]}; estado: {id:{hecho,fecha,nota}}
+
+function guardar(){
+  try{ localStorage.setItem(CLAVE, JSON.stringify(datos)); }
+  catch(e){ aviso('No se pudo guardar en el dispositivo'); }
+}
+function cargarLocal(){
+  try{
+    const t = localStorage.getItem(CLAVE);
+    if(t){ const d = JSON.parse(t); if(d && Array.isArray(d.puntos)) { datos = Object.assign({lineas:[],estado:{}}, d); return true; } }
+  }catch(e){}
+  return false;
+}
+const est = id => datos.estado[id] || {};
+const hecho = id => !!(datos.estado[id] && datos.estado[id].hecho);
+
+/* ================= Utilidades ================= */
+const $ = id => document.getElementById(id);
+function aviso(t){ const el=$('toast'); el.textContent=t; el.classList.add('ver'); clearTimeout(aviso._t); aviso._t=setTimeout(()=>el.classList.remove('ver'),2400); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function hoyISO(){ const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); }
+function fechaES(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return d+'/'+m+'/'+y; }
+function hash(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return (h>>>0).toString(36); }
+function descargar(nombre, contenido, tipo){
+  const blob = contenido instanceof Blob ? contenido : new Blob([contenido],{type:tipo});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=nombre;
+  document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},1000);
+}
+function baseNombre(){ return (datos.archivo||'centros').replace(/\.(kmz|kml)$/i,''); }
+function distM(a,b,c,d){ const R=6371000, r=Math.PI/180, x=(d-b)*r*Math.cos((a+c)/2*r), y=(c-a)*r; return Math.sqrt(x*x+y*y)*R; }
+function fmtDist(m){ return m<1000 ? Math.round(m)+' m' : (m/1000).toFixed(m<10000?1:0).replace('.',',')+' km'; }
+function confirmar(tit, txt, si){
+  $('cTit').textContent=tit; $('cTxt').textContent=txt; abrir('mConf');
+  $('cSi').onclick=()=>{ cerrar('mConf'); si(); };
+}
+function abrir(id){ $(id).classList.add('abierto'); }
+function cerrar(id){ $(id).classList.remove('abierto'); }
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m){ if(m.id==='mFicha') guardarFicha(); cerrar(m.id);} }));
+$('cNo').onclick=()=>cerrar('mConf');
+
+/* ================= Lectura de KML / KMZ ================= */
+function hijos(el, nombre){ return Array.from(el.children).filter(c=>c.localName===nombre); }
+function hijo(el, nombre){ return hijos(el,nombre)[0]; }
+function textoDe(el, nombre){ const h=hijo(el,nombre); return h ? h.textContent.trim() : ''; }
+function coords(txt){
+  return txt.trim().split(/\s+/).map(t=>t.split(',').map(Number)).filter(c=>c.length>=2 && isFinite(c[0]) && isFinite(c[1])).map(c=>[c[1],c[0]]);
+}
+function htmlATexto(html){
+  if(!/[<&]/.test(html)) return html.trim();
+  const d=new DOMParser().parseFromString('<div>'+html.replace(/<br\s*\/?>/gi,'\n')+'</div>','text/html');
+  return (d.body.textContent||'').replace(/\n{3,}/g,'\n\n').trim();
+}
+function infoDescripcion(html){
+  // Si la descripción es una tabla (típico de exportaciones SIG), sacar pares clave/valor
+  const pares=[];
+  if(/<t[dh][\s>]/i.test(html)){
+    const d=new DOMParser().parseFromString(html,'text/html');
+    d.querySelectorAll('tr').forEach(tr=>{
+      const c=tr.querySelectorAll('td,th');
+      if(c.length===2){ const k=c[0].textContent.trim(), v=c[1].textContent.trim(); if(k) pares.push([k,v]); }
+    });
+  }
+  if(!pares.length){ const t=htmlATexto(html); if(t) pares.push(['Descripción',t]); }
+  return pares;
+}
+function leerKML(texto){
+  const doc=new DOMParser().parseFromString(texto,'application/xml');
+  if(doc.getElementsByTagName('parsererror').length && !doc.getElementsByTagNameNS('*','Placemark').length) throw new Error('El archivo KML no es válido');
+  const puntos=[], lineas=[];
+  const vistos={};
+  const docEl=doc.getElementsByTagNameNS('*','Document')[0];
+  const deKmzrev=!!docEl && / \(revisado\)$/.test(textoDe(docEl,'name'));
+  Array.from(doc.getElementsByTagNameNS('*','Placemark')).forEach((pm,i)=>{
+    // Carpeta: nombres de Folder/Document antecesores (sin el Document raíz)
+    const ruta=[]; let p=pm.parentElement;
+    while(p){ if(p.localName==='Folder'){ const n=textoDe(p,'name'); if(n) ruta.unshift(n);} p=p.parentElement; }
+    const carpeta=ruta.join(' › ');
+    let nombre=textoDe(pm,'name');
+    let info=[];
+    const desc=textoDe(pm,'description'); if(desc) info.push(...infoDescripcion(desc));
+    const ed=hijo(pm,'ExtendedData');
+    if(ed){
+      Array.from(ed.getElementsByTagNameNS('*','Data')).forEach(d=>{ const k=d.getAttribute('name')||textoDe(d,'displayName'); const v=textoDe(d,'value'); if(k && v) info.push([k,v]); });
+      Array.from(ed.getElementsByTagNameNS('*','SimpleData')).forEach(d=>{ const k=d.getAttribute('name'); const v=d.textContent.trim(); if(k && v) info.push([k,v]); });
+    }
+    // KMZ exportado por esta app: recuperar el estado y no duplicar esos campos
+    let estPrev=null;
+    if(deKmzrev){
+      const v=k=>{ const x=info.find(i=>i[0]===k); return x?x[1]:''; };
+      if(v('Estado')==='Realizado'){ const f=v('Fecha').split('/'); estPrev={hecho:true, fecha:f.length===3?f[2]+'-'+f[1]+'-'+f[0]:'', nota:v('Observaciones')}; }
+      else if(v('Observaciones')) estPrev={hecho:false, fecha:'', nota:v('Observaciones')};
+      const quitar=['Estado','Fecha','Observaciones'];
+      info=info.filter(i=>!quitar.includes(i[0]));
+    }
+    // Geometrías
+    Array.from(pm.getElementsByTagNameNS('*','Point')).forEach((pt,j)=>{
+      const c=coords(textoDe(pt,'coordinates'))[0]; if(!c) return;
+      const n=nombre || ('Punto '+(puntos.length+1));
+      let id=hash(n+'|'+c[0].toFixed(6)+'|'+c[1].toFixed(6));
+      while(vistos[id]) id=id+'_'; vistos[id]=1;
+      const nuevo={id, nombre:n, lat:c[0], lng:c[1], carpeta, info};
+      if(estPrev) nuevo.estPrev=estPrev;
+      puntos.push(nuevo);
+    });
+    Array.from(pm.getElementsByTagNameNS('*','LineString')).forEach(ls=>{
+      const c=coords(textoDe(ls,'coordinates')); if(c.length>1) lineas.push({nombre:nombre||'', c:c.map(x=>[+x[0].toFixed(6),+x[1].toFixed(6)])});
+    });
+    Array.from(pm.getElementsByTagNameNS('*','LinearRing')).forEach(lr=>{
+      const c=coords(textoDe(lr,'coordinates')); if(c.length>1) lineas.push({nombre:nombre||'', c:c.map(x=>[+x[0].toFixed(6),+x[1].toFixed(6)])});
+    });
+  });
+  return {puntos, lineas};
+}
+async function leerArchivo(file){
+  const nombre=file.name;
+  let texto;
+  const buf=await file.arrayBuffer();
+  const u8=new Uint8Array(buf);
+  if(u8[0]===0x50 && u8[1]===0x4B){ // ZIP → KMZ
+    const zip=await JSZip.loadAsync(buf);
+    const kmls=Object.keys(zip.files).filter(n=>/\.kml$/i.test(n) && !zip.files[n].dir);
+    if(!kmls.length) throw new Error('El KMZ no contiene ningún KML');
+    kmls.sort((a,b)=>(/(^|\/)doc\.kml$/i.test(b))-(/(^|\/)doc\.kml$/i.test(a)) || a.split('/').length-b.split('/').length);
+    const res={puntos:[],lineas:[]};
+    for(const k of kmls){ const r=leerKML(await zip.files[k].async('string')); res.puntos.push(...r.puntos); res.lineas.push(...r.lineas); }
+    return {nombre, ...res};
+  }
+  texto=new TextDecoder('utf-8').decode(u8);
+  return {nombre, ...leerKML(texto)};
+}
+function aplicarCarga(r){
+  if(!r.puntos.length) throw new Error('No se han encontrado puntos en el archivo');
+  // conservar estado de los puntos que coincidan
+  const nuevoEstado={}; let conservados=0;
+  const porNombre={};
+  datos.puntos.forEach(p=>{ if(datos.estado[p.id]) porNombre[p.nombre]=datos.estado[p.id]; });
+  r.puntos.forEach(p=>{
+    const e=datos.estado[p.id] || porNombre[p.nombre] || p.estPrev;
+    delete p.estPrev;
+    if(e){ nuevoEstado[p.id]=e; conservados++; }
+  });
+  datos={archivo:r.nombre, cargado:new Date().toISOString(), puntos:r.puntos, lineas:r.lineas, estado:nuevoEstado};
+  guardar(); dibujarTodo(true);
+  aviso(r.puntos.length+' centros cargados'+(conservados?' · '+conservados+' con estado conservado':''));
+}
+$('fichero').addEventListener('change', async e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f) return;
+  cerrar('mMenu');
+  try{ aplicarCarga(await leerArchivo(f)); }
+  catch(err){ console.error(err); aviso(err.message||'No se pudo leer el archivo'); }
+});
+const elegirArchivo=()=>$('fichero').click();
+$('bCargarVacio').onclick=elegirArchivo;
+$('mCargar').onclick=elegirArchivo;
+
+/* ================= Mapa ================= */
+const mapa=L.map('mapa',{preferCanvas:true, zoomControl:true}).setView([38.6,-6.6],8);
+const capaCalles=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'});
+const capaSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'© Esri'});
+let capaBase='calles';
+try{ capaBase=localStorage.getItem('kmzrev:capa')||'calles'; }catch(e){}
+(capaBase==='sat'?capaSat:capaCalles).addTo(mapa);
+
+const grupoLineas=L.layerGroup().addTo(mapa);
+const grupoPuntos=L.layerGroup().addTo(mapa);
+const renderer=L.canvas({padding:.5, tolerance:8});
+let marcadores={}; // id -> circleMarker
+let filtro='todos';
+
+function estiloMarcador(id){
+  const h=hecho(id);
+  return { radius:h?8:9, color:'#fff', weight:2.5, fillColor:h?'#2E9E5B':'#EE6A1C', fillOpacity:1 };
+}
+function visible(id){ return filtro==='todos' || (filtro==='hecho')===hecho(id); }
+
+function dibujarTodo(encuadrar){
+  grupoPuntos.clearLayers(); grupoLineas.clearLayers(); marcadores={};
+  datos.lineas.forEach(l=>L.polyline(l.c,{color:'#7A828C',weight:2,opacity:.7,renderer,interactive:false}).addTo(grupoLineas));
+  datos.puntos.forEach(p=>{
+    const m=L.circleMarker([p.lat,p.lng],Object.assign({renderer},estiloMarcador(p.id)));
+    m.on('click',()=>abrirFicha(p.id));
+    marcadores[p.id]=m;
+    if(visible(p.id)) m.addTo(grupoPuntos);
+  });
+  $('vacio').classList.toggle('ver', !datos.puntos.length);
+  if(encuadrar && datos.puntos.length){
+    const b=L.latLngBounds(datos.puntos.map(p=>[p.lat,p.lng]));
+    mapa.fitBounds(b,{padding:[30,30],maxZoom:16});
+  }
+  actualizarProgreso(); etiquetas();
+}
+function refrescarPunto(id){
+  const m=marcadores[id]; if(!m) return;
+  m.setStyle(estiloMarcador(id));
+  if(visible(id)) { if(!grupoPuntos.hasLayer(m)) m.addTo(grupoPuntos); }
+  else grupoPuntos.removeLayer(m);
+  actualizarProgreso(); etiquetas();
+}
+function aplicarFiltro(){
+  datos.puntos.forEach(p=>{ const m=marcadores[p.id]; if(!m) return;
+    if(visible(p.id)){ if(!grupoPuntos.hasLayer(m)) m.addTo(grupoPuntos); } else grupoPuntos.removeLayer(m); });
+  etiquetas();
+}
+function actualizarProgreso(){
+  const t=datos.puntos.length, h=datos.puntos.filter(p=>hecho(p.id)).length;
+  $('progTxt').innerHTML='<b>'+h+'</b> / '+t+' realizados';
+  $('progBar').style.width=(t?h/t*100:0)+'%';
+  $('filtro').querySelector('[data-f=pend]').textContent='Pendientes ('+(t-h)+')';
+  $('filtro').querySelector('[data-f=hecho]').textContent='Realizados ('+h+')';
+}
+// Nombres sobre el mapa al acercarse (solo los visibles en pantalla)
+const grupoEtq=L.layerGroup().addTo(mapa);
+function etiquetas(){
+  grupoEtq.clearLayers();
+  if(mapa.getZoom()<15) return;
+  const b=mapa.getBounds().pad(.1); let n=0;
+  for(const p of datos.puntos){
+    if(n>250) break;
+    if(!visible(p.id) || !b.contains([p.lat,p.lng])) continue;
+    L.tooltip({permanent:true,direction:'right',offset:[9,0],className:'etq'+(hecho(p.id)?' hecho':''),interactive:false})
+      .setLatLng([p.lat,p.lng]).setContent(esc(p.nombre)).addTo(grupoEtq);
+    n++;
+  }
+}
+mapa.on('moveend zoomend',etiquetas);
+
+// Controles: capa, ubicación, encuadrar
+const Ctl=L.Control.extend({ options:{position:'topright'}, onAdd(){
+  const c=L.DomUtil.create('div'); c.style.display='flex'; c.style.flexDirection='column'; c.style.gap='8px';
+  c.innerHTML=
+   '<button class="ctl-btn" id="cCapa" title="Satélite / Calles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3 2.5 8 12 13l9.5-5z"/><path d="m2.5 12.5 9.5 5 9.5-5M2.5 16.5l9.5 5 9.5-5" opacity=".6"/></svg></button>'+
+   '<button class="ctl-btn" id="cYo" title="Mi ubicación"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>'+
+   '<button class="ctl-btn" id="cTodo" title="Ver todos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>';
+  L.DomEvent.disableClickPropagation(c); return c; }});
+mapa.addControl(new Ctl());
+$('cCapa').onclick=()=>{
+  if(capaBase==='sat'){ mapa.removeLayer(capaSat); capaCalles.addTo(mapa); capaBase='calles'; }
+  else { mapa.removeLayer(capaCalles); capaSat.addTo(mapa); capaBase='sat'; }
+  $('cCapa').classList.toggle('activo',capaBase==='sat');
+  try{ localStorage.setItem('kmzrev:capa',capaBase); }catch(e){}
+};
+$('cCapa').classList.toggle('activo',capaBase==='sat');
+$('cTodo').onclick=()=>{ if(datos.puntos.length) mapa.fitBounds(L.latLngBounds(datos.puntos.map(p=>[p.lat,p.lng])),{padding:[30,30],maxZoom:16}); };
+
+let yo=null, marcaYo=null, siguiendo=null, centrarAlLlegar=false;
+$('cYo').onclick=()=>{
+  if(!navigator.geolocation){ aviso('Este dispositivo no permite ubicación'); return; }
+  if(yo){ mapa.setView(yo, Math.max(mapa.getZoom(),15)); }
+  else centrarAlLlegar=true;
+  if(siguiendo==null){
+    siguiendo=navigator.geolocation.watchPosition(pos=>{
+      yo=[pos.coords.latitude,pos.coords.longitude];
+      if(!marcaYo) marcaYo=L.marker(yo,{icon:L.divIcon({className:'',html:'<div class="yo"></div>',iconSize:[16,16]}),interactive:false,zIndexOffset:1000}).addTo(mapa);
+      else marcaYo.setLatLng(yo);
+      $('cYo').classList.add('activo');
+      if(centrarAlLlegar){ centrarAlLlegar=false; mapa.setView(yo, Math.max(mapa.getZoom(),15)); }
+    }, err=>{ aviso('No se pudo obtener la ubicación'); siguiendo=null; }, {enableHighAccuracy:true, maximumAge:10000});
+  }
+};
+
+/* ================= Filtro ================= */
+$('filtro').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  filtro=b.dataset.f;
+  $('filtro').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+  aplicarFiltro();
+});
+
+/* ================= Ficha ================= */
+let actual=null;
+function pintarEstadoFicha(){
+  const e=est(actual), h=!!e.hecho;
+  $('fEstado').classList.toggle('hecho',h);
+  $('fEstadoTxt').textContent=h?'Realizado':'Pendiente';
+  $('fEstadoSub').textContent=h?'Toca para volver a pendiente':'Toca para marcar como realizado';
+}
+function abrirFicha(id){
+  const p=datos.puntos.find(x=>x.id===id); if(!p) return;
+  actual=id; const e=est(id);
+  $('fNombre').textContent=p.nombre;
+  let sub=(p.carpeta?p.carpeta+' · ':'')+p.lat.toFixed(5)+', '+p.lng.toFixed(5);
+  if(yo) sub+=' · a '+fmtDist(distM(yo[0],yo[1],p.lat,p.lng));
+  $('fSub').textContent=sub;
+  $('fFecha').value=e.fecha||'';
+  $('fNota').value=e.nota||'';
+  $('fRuta').href='https://www.google.com/maps/dir/?api=1&destination='+p.lat+','+p.lng;
+  $('fDatos').innerHTML=p.info.map(([k,v])=>'<tr><td>'+esc(k)+'</td><td>'+esc(v).replace(/\n/g,'<br>')+'</td></tr>').join('');
+  $('fDatosCont').style.display=p.info.length?'':'none';
+  pintarEstadoFicha();
+  abrir('mFicha');
+}
+$('fEstado').onclick=()=>{
+  const e=Object.assign({},est(actual));
+  e.hecho=!e.hecho;
+  if(e.hecho && !$('fFecha').value) $('fFecha').value=hoyISO();
+  if(!e.hecho) $('fFecha').value='';
+  datos.estado[actual]=e;
+  guardarFicha();
+  pintarEstadoFicha();
+  if(navigator.vibrate) navigator.vibrate(30);
+};
+function guardarFicha(){
+  if(!actual) return;
+  const e=Object.assign({},est(actual));
+  e.fecha=$('fFecha').value||''; e.nota=$('fNota').value.trim();
+  if(e.fecha && !e.hecho && $('fFecha').dataset.tocado){ e.hecho=true; }
+  if(!e.hecho && !e.nota && !e.fecha) delete datos.estado[actual]; else datos.estado[actual]=e;
+  guardar(); refrescarPunto(actual);
+  if($('mLista').classList.contains('abierto')) pintarLista();
+}
+$('fFecha').addEventListener('input',()=>{ $('fFecha').dataset.tocado='1'; guardarFicha(); pintarEstadoFicha(); $('fFecha').dataset.tocado=''; });
+$('fNota').addEventListener('change',guardarFicha);
+$('fCerrar').onclick=()=>{ guardarFicha(); cerrar('mFicha'); aviso('Guardado'); };
+
+/* ================= Lista ================= */
+function pintarLista(){
+  const q=$('lBusca').value.trim().toLowerCase();
+  const carp=$('lCarpeta').value;
+  let lista=datos.puntos.filter(p=>visible(p.id) && (!carp || p.carpeta===carp) &&
+    (!q || p.nombre.toLowerCase().includes(q) || p.carpeta.toLowerCase().includes(q) || (est(p.id).nota||'').toLowerCase().includes(q)));
+  if(yo){ lista=lista.map(p=>Object.assign({d:distM(yo[0],yo[1],p.lat,p.lng)},p)).sort((a,b)=>a.d-b.d); }
+  else lista=lista.slice().sort((a,b)=>a.carpeta.localeCompare(b.carpeta,'es')||a.nombre.localeCompare(b.nombre,'es',{numeric:true}));
+  const max=400; let html='', grupo=null;
+  lista.slice(0,max).forEach(p=>{
+    if(!yo && p.carpeta!==grupo){ grupo=p.carpeta; if(grupo) html+='<div class="grupo">'+esc(grupo)+'</div>'; }
+    const e=est(p.id);
+    const det=e.hecho?('Realizado'+(e.fecha?' el '+fechaES(e.fecha):'')):'Pendiente';
+    html+='<div class="item" data-id="'+esc(p.id)+'"><span class="punto'+(e.hecho?' hecho':'')+'"></span><div><div class="nom">'+esc(p.nombre)+'</div><div class="det">'+esc(det)+(e.nota?' · '+esc(e.nota.slice(0,40)):'')+'</div></div>'+(p.d!=null?'<span class="dist">'+fmtDist(p.d)+'</span>':'')+'</div>';
+  });
+  if(lista.length>max) html+='<div class="grupo" style="text-align:center">… y '+(lista.length-max)+' más. Usa el buscador.</div>';
+  if(!lista.length) html='<div style="text-align:center;color:var(--texto-sec);padding:40px 10px">'+(datos.puntos.length?'No hay centros con este filtro':'Aún no has cargado ningún KMZ')+'</div>';
+  $('lItems').innerHTML=html;
+}
+$('lItems').addEventListener('click',e=>{
+  const it=e.target.closest('.item'); if(!it) return;
+  const p=datos.puntos.find(x=>x.id===it.dataset.id); if(!p) return;
+  cerrar('mLista');
+  mapa.setView([p.lat,p.lng],Math.max(mapa.getZoom(),17));
+  abrirFicha(p.id);
+});
+$('bLista').onclick=()=>{
+  const carpetas=[...new Set(datos.puntos.map(p=>p.carpeta))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'es'));
+  const sel=$('lCarpeta'), prev=sel.value;
+  sel.innerHTML='<option value="">Todas las carpetas</option>'+carpetas.map(c=>'<option>'+esc(c)+'</option>').join('');
+  sel.value=carpetas.includes(prev)?prev:'';
+  $('lCarpetaCont').style.display=carpetas.length>1?'':'none';
+  pintarLista(); abrir('mLista');
+};
+$('lBusca').addEventListener('input',pintarLista);
+$('lCarpeta').addEventListener('change',pintarLista);
+$('lCerrar').onclick=()=>cerrar('mLista');
+
+/* ================= Menú y exportaciones ================= */
+$('bMenu').onclick=()=>{
+  $('menuArchivo').textContent=datos.archivo?('Archivo: '+datos.archivo+' · '+datos.puntos.length+' centros'):'Sin archivo cargado';
+  abrir('mMenu');
+};
+$('menuCerrar').onclick=()=>cerrar('mMenu');
+
+function xml(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function generarKML(){
+  const porCarpeta={};
+  datos.puntos.forEach(p=>{ (porCarpeta[p.carpeta]=porCarpeta[p.carpeta]||[]).push(p); });
+  const pm=p=>{
+    const e=est(p.id);
+    const filas=[['Estado',e.hecho?'Realizado':'Pendiente']].concat(e.fecha?[['Fecha',fechaES(e.fecha)]]:[]).concat(e.nota?[['Observaciones',e.nota]]:[]).concat(p.info);
+    return '<Placemark><name>'+xml(p.nombre)+'</name><styleUrl>#'+(e.hecho?'hecho':'pend')+'</styleUrl>'+
+      '<description><![CDATA[<table>'+filas.map(([k,v])=>'<tr><td><b>'+esc(k)+'</b></td><td>'+esc(v)+'</td></tr>').join('')+'</table>]]></description>'+
+      '<ExtendedData><Data name="Estado"><value>'+(e.hecho?'Realizado':'Pendiente')+'</value></Data><Data name="Fecha"><value>'+xml(fechaES(e.fecha))+'</value></Data><Data name="Observaciones"><value>'+xml(e.nota||'')+'</value></Data></ExtendedData>'+
+      '<Point><coordinates>'+p.lng+','+p.lat+',0</coordinates></Point></Placemark>';
+  };
+  const estilo=(id,col)=>'<Style id="'+id+'"><IconStyle><color>'+col+'</color><scale>1.1</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href></Icon></IconStyle><LabelStyle><scale>0.8</scale></LabelStyle></Style>';
+  let cuerpo='';
+  Object.keys(porCarpeta).sort().forEach(c=>{
+    const items=porCarpeta[c].map(pm).join('');
+    cuerpo+= c ? '<Folder><name>'+xml(c)+'</name>'+items+'</Folder>' : items;
+  });
+  const lin=datos.lineas.length ? '<Folder><name>Líneas</name>'+datos.lineas.map(l=>'<Placemark><name>'+xml(l.nombre)+'</name><Style><LineStyle><color>ff8c827a</color><width>2</width></LineStyle></Style><LineString><coordinates>'+l.c.map(x=>x[1]+','+x[0]+',0').join(' ')+'</coordinates></LineString></Placemark>').join('')+'</Folder>' : '';
+  return '<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>'+xml(baseNombre())+' (revisado)</name>'+
+    estilo('hecho','ff5b9e2e')+estilo('pend','ff1c6aee')+cuerpo+lin+'</Document></kml>';
+}
+$('mExpKmz').onclick=async()=>{
+  if(!datos.puntos.length) return aviso('No hay centros cargados');
+  const zip=new JSZip(); zip.file('doc.kml',generarKML());
+  const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',mimeType:'application/vnd.google-earth.kmz'});
+  descargar(baseNombre()+'_revisado_'+hoyISO()+'.kmz',blob); cerrar('mMenu');
+};
+$('mExpCsv').onclick=()=>{
+  if(!datos.puntos.length) return aviso('No hay centros cargados');
+  const c=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const filas=[['Centro','Carpeta','Estado','Fecha','Observaciones','Latitud','Longitud'].map(c).join(';')];
+  datos.puntos.forEach(p=>{ const e=est(p.id); filas.push([p.nombre,p.carpeta,e.hecho?'Realizado':'Pendiente',fechaES(e.fecha),e.nota||'',String(p.lat).replace('.',','),String(p.lng).replace('.',',')].map(c).join(';')); });
+  descargar(baseNombre()+'_'+hoyISO()+'.csv','﻿'+filas.join('\r\n'),'text/csv;charset=utf-8'); cerrar('mMenu');
+};
+$('mBackup').onclick=()=>{
+  if(!datos.puntos.length) return aviso('No hay nada que guardar');
+  descargar('kmzrev_'+baseNombre()+'_'+hoyISO()+'.json',JSON.stringify(Object.assign({app:'kmzrev',version:1},datos)),'application/json'); cerrar('mMenu');
+};
+$('mRestaurar').onclick=()=>$('ficheroJson').click();
+$('ficheroJson').addEventListener('change',async e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f) return;
+  try{
+    const d=JSON.parse(await f.text());
+    if(!d || !Array.isArray(d.puntos)) throw 0;
+    datos={archivo:d.archivo||f.name, cargado:d.cargado||'', puntos:d.puntos, lineas:d.lineas||[], estado:d.estado||{}};
+    guardar(); cerrar('mMenu'); dibujarTodo(true); aviso('Copia restaurada');
+  }catch(err){ aviso('El archivo no es una copia válida de KMZrev'); }
+});
+$('mReset').onclick=()=>{
+  if(!datos.puntos.length) return;
+  confirmar('Desmarcar todos','Todos los centros volverán a estar pendientes y se borrarán fechas y observaciones.',()=>{
+    datos.estado={}; guardar(); cerrar('mMenu'); dibujarTodo(false); aviso('Todos pendientes');
+  });
+};
+$('mBorrar').onclick=()=>{
+  confirmar('Quitar el KMZ','Se borrarán los centros y su estado de este dispositivo. Si quieres conservarlos, haz antes una copia de seguridad.',()=>{
+    datos={archivo:'',cargado:'',puntos:[],lineas:[],estado:{}}; guardar(); cerrar('mMenu'); dibujarTodo(false);
+  });
+};
+
+/* ================= Inicio ================= */
+async function inicio(){
+  if(cargarLocal() && datos.puntos.length){ dibujarTodo(true); return; }
+  // Si el repositorio incluye un centros.kmz / centros.kml, se carga automáticamente
+  for(const n of ['centros.kmz','centros.kml']){
+    try{
+      const r=await fetch(n,{cache:'no-store'});
+      if(r.ok){ const b=await r.blob(); aplicarCarga(await leerArchivo(new File([b],n))); return; }
+    }catch(e){}
+  }
+  dibujarTodo(false);
+}
+inicio();
+})();
+</script>
+</body>
+</html>
