@@ -12,7 +12,8 @@ Mapa de centros de transformación a partir de un archivo **KMZ / KML**, para ir
    - Botón **Tipos**: lista los distintos iconos del KMZ con su avance y permite ocultar tipos.
    - Los puntos sin icono propio salen como círculo naranja (pendiente) o verde (realizado).
 4. **Reubicar un punto** desde su ficha: **Aquí (mi GPS)** lo coloca donde estás, o **Mover en el mapa** para dejarlo bajo la cruz roja. Siempre se puede volver a la posición original.
-5. **Cómo llegar** abre la ruta en Google Maps. El botón de ubicación muestra dónde estás y ordena la lista por cercanía.
+5. **Crear puntos nuevos** con el botón **+**: coloca la cruz en el mapa (o pulsa GPS para ir a tu posición), pon nombre, elige el tipo de icono y la carpeta. Los puntos creados se pueden editar o eliminar desde su ficha, se mantienen al volver a cargar el KMZ y salen en las exportaciones. También puedes empezar sin KMZ.
+6. **Cómo llegar** abre la ruta en Google Maps. El botón de ubicación muestra dónde estás y ordena la lista por cercanía.
 
 El estado se guarda en el propio dispositivo. Desde el **Menú**:
 - **Exportar KMZ**: con los iconos originales, las posiciones corregidas y los realizados marcados con ✔, para Google Earth. Si vuelves a abrir ese KMZ en la app (en otro móvil, por ejemplo), recupera qué centros estaban hechos.
