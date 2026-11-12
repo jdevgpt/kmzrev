@@ -7,11 +7,15 @@ Mapa de centros de transformación a partir de un archivo **KMZ / KML**, para ir
 ## Uso
 1. Abre la app y pulsa **Cargar KMZ / KML**.
 2. Toca un centro en el mapa (o búscalo en **Lista**) y pulsa **Pendiente → Realizado**. Se pone la fecha de hoy (editable) y puedes añadir observaciones.
-3. Naranja = pendiente · Verde = realizado. Filtra por Todos / Pendientes / Realizados.
-4. **Cómo llegar** abre la ruta en Google Maps. El botón de ubicación muestra dónde estás y ordena la lista por cercanía.
+3. Cada punto se ve con **el icono y el color que trae el KMZ** y su nombre al lado. Los realizados llevan un ✔ verde. Filtra por Todos / Pendientes / Realizados.
+   - Botón **Aa**: muestra u oculta los nombres (se ven al acercar el mapa).
+   - Botón **Tipos**: lista los distintos iconos del KMZ con su avance y permite ocultar tipos.
+   - Los puntos sin icono propio salen como círculo naranja (pendiente) o verde (realizado).
+4. **Reubicar un punto** desde su ficha: **Aquí (mi GPS)** lo coloca donde estás, o **Mover en el mapa** para dejarlo bajo la cruz roja. Siempre se puede volver a la posición original.
+5. **Cómo llegar** abre la ruta en Google Maps. El botón de ubicación muestra dónde estás y ordena la lista por cercanía.
 
 El estado se guarda en el propio dispositivo. Desde el **Menú**:
-- **Exportar KMZ**: realizados en verde y pendientes en naranja, para Google Earth. Si vuelves a abrir ese KMZ en la app (en otro móvil, por ejemplo), recupera qué centros estaban hechos.
+- **Exportar KMZ**: con los iconos originales, las posiciones corregidas y los realizados marcados con ✔, para Google Earth. Si vuelves a abrir ese KMZ en la app (en otro móvil, por ejemplo), recupera qué centros estaban hechos.
 - **Exportar Excel (CSV)**: listado con estado, fecha y observaciones.
 - **Copia de seguridad / Restaurar**: archivo `.json` con todo.
 
