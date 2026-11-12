@@ -22,11 +22,12 @@ Con Ortofoto PNOA o Mapa IGN elegido, en "Mapas sin cobertura" puedes descargar 
    - Los puntos sin icono propio salen como círculo naranja (pendiente) o verde (realizado).
 4. **Reubicar un punto** desde su ficha: **Aquí (mi GPS)** lo coloca donde estás, o **Mover en el mapa** para dejarlo bajo la cruz roja. Siempre se puede volver a la posición original.
 5. **Crear puntos nuevos** con el botón **+**: coloca la cruz en el mapa (o pulsa GPS para ir a tu posición), pon nombre, elige el tipo de icono y la carpeta. Los puntos creados se pueden editar o eliminar desde su ficha, se mantienen al volver a cargar el KMZ y salen en las exportaciones. También puedes empezar sin KMZ.
-6. **Cómo llegar** abre la ruta en Google Maps. El botón de ubicación muestra dónde estás y ordena la lista por cercanía.
+6. **Defectos**: en la ficha de cada punto, **Añadir defecto** abre la lista de la guía que toque — **Baja Tensión** (tabla BEL011), **Línea MT** (AED017), **PT intemperie** (FED030) o **CD edificio** (FED029) —, agrupada como en la guía y con buscador por código o texto (busca en las cuatro). Al tocar un defecto se ve el criterio de la guía y se puede añadir con una observación. Los puntos con defectos llevan un número rojo en el mapa, y en la Lista se pueden filtrar.
+7. **Cómo llegar** abre la ruta en Google Maps. El botón de ubicación muestra dónde estás y ordena la lista por cercanía.
 
 El estado se guarda en el propio dispositivo. Desde el **Menú**:
 - **Exportar KMZ**: con los iconos originales, las posiciones corregidas y los realizados marcados con ✔, para Google Earth. Si vuelves a abrir ese KMZ en la app (en otro móvil, por ejemplo), recupera qué centros estaban hechos.
-- **Exportar Excel (CSV)**: listado con estado, fecha y observaciones.
+- **Exportar Excel** (.xlsx): hoja *Puntos*, hoja *Defectos* (una fila por defecto) y *Resumen* por código, con filtros y enlace al mapa.
 - **Copia de seguridad / Restaurar**: archivo `.json` con todo.
 
 Volver a cargar el KMZ (por ejemplo, uno actualizado) conserva el estado de los centros que coincidan.

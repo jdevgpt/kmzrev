@@ -1,11 +1,11 @@
 /* KMZrev · funcionamiento sin conexión */
-const VERSION = 'kmzrev-app-v5';
+const VERSION = 'kmzrev-app-v6';
 const TESELAS = 'kmzrev-teselas';      // mapas descargados a propósito (no se borran solos)
 const VISTAS  = 'kmzrev-vistas';       // trozos de mapa ya vistos (se van renovando)
 const MAX_VISTAS = 4000;
 
 const APP = [
-  './', 'index.html', 'manifest.webmanifest',
+  './', 'index.html', 'defectos.js', 'manifest.webmanifest',
   'icon.svg', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'
 ];
 const EXTERNOS = [

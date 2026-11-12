@@ -193,6 +193,39 @@
   .colores label{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600;color:var(--texto-sec);cursor:pointer;margin-left:4px}
   .colores input[type=color]{width:40px;height:36px;border:none;background:none;padding:0;cursor:pointer}
   .tipo-fila .cambiar{margin-left:auto;height:32px;padding:0 12px;border-radius:9px;border:1px solid var(--gris-medio);background:#fff;font:inherit;font-size:.82rem;font-weight:700;color:var(--naranja-osc);cursor:pointer}
+  /* Defectos */
+  .mk .ndef{position:absolute;left:-7px;top:-7px;min-width:17px;height:17px;border-radius:9px;background:var(--rojo);color:#fff;border:2px solid #fff;
+    font:800 10px/13px -apple-system,"Segoe UI",Roboto,sans-serif;text-align:center;padding:0 3px;box-shadow:0 1px 2px rgba(0,0,0,.35);font-style:normal}
+  .defs{border:1px solid var(--gris-medio);border-radius:12px;padding:10px;margin:0 0 10px}
+  .defs-cab{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .defs-cab b{font-size:.95rem}
+  .defs-cab .num{display:inline-block;min-width:22px;height:22px;border-radius:11px;background:var(--rojo);color:#fff;font-size:.78rem;text-align:center;line-height:22px;padding:0 6px;margin-left:4px}
+  .defs-cab .num.cero{background:var(--gris-medio);color:var(--texto-sec)}
+  .defs-cab .mini{flex:none;min-width:0;padding:0 12px}
+  .def-it{border-top:1px solid var(--gris);padding:10px 0 4px;margin-top:8px}
+  .def-it .l1{display:flex;gap:8px;align-items:flex-start}
+  .cod{flex:none;font:800 .8rem "Barlow",system-ui,sans-serif;background:#FDECEA;color:var(--rojo);border:1px solid #F3C4BE;border-radius:7px;padding:2px 7px;letter-spacing:.03em}
+  .def-it .txt{flex:1;font-size:.86rem;line-height:1.3}
+  .def-it .txt small{display:block;color:var(--texto-sec);font-size:.74rem;margin-top:2px}
+  .def-it .quitar{flex:none;width:32px;height:32px;border-radius:8px;border:none;background:var(--gris);color:var(--texto-sec);cursor:pointer;display:grid;place-items:center}
+  .def-it .quitar svg{width:16px;height:16px}
+  .def-it input{width:100%;margin-top:6px;min-height:38px;border:1px solid var(--gris-medio);border-radius:9px;padding:6px 10px;font:inherit;font-size:.88rem}
+  .def-it input:focus{outline:none;border-color:var(--naranja)}
+  .dlist .grp{font-size:.74rem;font-weight:800;color:var(--texto-sec);text-transform:uppercase;letter-spacing:.04em;padding:12px 2px 4px;position:sticky;top:0;background:#fff;z-index:1}
+  .dit{border-top:1px solid var(--gris);padding:10px 2px}
+  .dit .l1{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+  .dit .txt{flex:1;font-size:.88rem;line-height:1.3}
+  .dit .ya{flex:none;font-size:.72rem;font-weight:700;color:var(--verde);white-space:nowrap}
+  .dit .mas{display:none;margin-top:8px;padding-left:2px}
+  .dit.abierto .mas{display:block}
+  .dit.abierto{background:#FFFBF7}
+  .ayuda{white-space:pre-line;font-size:.8rem;color:var(--texto-sec);background:var(--gris);border-radius:10px;padding:8px 10px;margin-bottom:8px;max-height:220px;overflow:auto}
+  .dit .mas .fila-b{display:flex;gap:8px}
+  .dit .mas input{flex:1;min-height:42px;border:1px solid var(--gris-medio);border-radius:10px;padding:8px 10px;font:inherit;font-size:.9rem;min-width:0}
+  .dit .mas .btn{flex:none;height:42px;padding:0 14px;font-size:.92rem}
+  .seg.guias button{font-size:.8rem}
+  .solo-def{display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:600;color:var(--texto-sec);margin:-2px 0 8px;cursor:pointer;flex:none}
+  .solo-def input{width:20px;height:20px;accent-color:var(--rojo)}
   /* Nuevo punto */
   .tipos-sel{display:flex;flex-wrap:wrap;gap:8px}
   .tipos-sel button{display:flex;align-items:center;gap:8px;padding:8px 12px 8px 8px;border-radius:12px;border:2px solid var(--gris-medio);
@@ -317,6 +350,10 @@
         <span class="circ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
         <span><b id="fEstadoTxt"></b><small id="fEstadoSub"></small></span>
       </button>
+      <div class="defs">
+        <div class="defs-cab"><b>Defectos<span class="num cero" id="fNdef">0</span></b><button class="mini" id="fAddDef"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Añadir defecto</button></div>
+        <div id="fDefs"></div>
+      </div>
       <div class="reub">
         <div class="reub-t">Ubicación <small id="fReubicado"></small></div>
         <div class="fila-b">
@@ -426,6 +463,20 @@
   </div>
 </div>
 
+<!-- Añadir defecto -->
+<div class="modal" id="mDef" style="z-index:2200">
+  <div class="hoja" style="height:90vh">
+    <div class="hoja-cab" style="align-items:center">
+      <div><h2>Añadir defecto</h2><div class="sub" id="dSub" style="margin:0"></div></div>
+      <button class="x" id="dX" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="seg guias" id="dGuia" style="flex:none;margin:10px 0 8px"></div>
+    <div class="busca"><input class="campo" id="dBusca" type="search" placeholder="Buscar por código o texto (p. ej. A11B, aislador…)" autocomplete="off"></div>
+    <div class="sub" id="dGuiaNom" style="margin:-4px 0 4px;font-size:.75rem"></div>
+    <div class="scroll dlist" id="dLista"></div>
+  </div>
+</div>
+
 <!-- Nuevo / editar punto -->
 <div class="modal" id="mNuevo" style="z-index:2200">
   <div class="hoja">
@@ -459,6 +510,7 @@
       <button class="x" id="lCerrar" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
     <div class="busca"><input class="campo" id="lBusca" type="search" placeholder="Buscar centro…" autocomplete="off"></div>
+    <label class="solo-def"><input type="checkbox" id="lSoloDef"> Solo puntos con defectos</label>
     <div class="busca" id="lCarpetaCont" style="display:none"><select class="campo" id="lCarpeta"></select></div>
     <div class="scroll" id="lItems"></div>
   </div>
@@ -488,10 +540,10 @@
       <button id="mInstalar" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M12 8v7M9 12l3 3 3-3"/></svg><span>Instalar en el móvil<small>Icono propio, pantalla completa y funciona sin cobertura</small></span></button>
       <button id="mCargar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 21h14"/></svg><span>Cargar KMZ / KML<small>Si ya había centros, se conserva el estado de los que coincidan</small></span></button>
       <button id="mExpKmz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6z"/></svg><span>Exportar KMZ<small>Con sus iconos y las posiciones corregidas; realizados con ✔</small></span></button>
-      <button id="mExpCsv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4zM4 10h16M4 15h16M10 4v16"/></svg><span>Exportar Excel (CSV)<small>Listado con tipo, estado, fecha y observaciones</small></span></button>
+      <button id="mExpCsv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4zM4 10h16M4 15h16M10 4v16"/></svg><span>Exportar Excel<small>Hoja de puntos, hoja de defectos y resumen por código</small></span></button>
       <button id="mBackup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span>Copia de seguridad<small>Guarda todo en un archivo .json</small></span></button>
       <button id="mRestaurar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg><span>Restaurar copia<small>Recupera un .json guardado (también en otro móvil)</small></span></button>
-      <button id="mReset" class="rojo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg><span>Desmarcar todos<small>Pone todos como pendientes (las posiciones corregidas se mantienen)</small></span></button>
+      <button id="mReset" class="rojo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg><span>Desmarcar todos<small>Pone todos como pendientes (se mantienen defectos y posiciones)</small></span></button>
       <div class="sub" id="mAlmacen" style="padding:10px 6px 0;margin:0;border-top:1px solid var(--gris)"></div>
       <button id="mBorrar" class="rojo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg><span>Quitar el KMZ<small>Borra los centros y su estado de este dispositivo</small></span></button>
     </div>
@@ -514,6 +566,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="defectos.js"></script>
 <script>
 (function(){
 'use strict';
@@ -660,7 +713,9 @@ function leerKML(texto){
       const v=k=>{ const x=info.find(i=>i[0]===k); return x?x[1]:''; };
       if(v('Estado')==='Realizado'){ const f=v('Fecha').split('/'); estPrev={hecho:true,fecha:f.length===3?f[2]+'-'+f[1]+'-'+f[0]:'',nota:v('Observaciones')}; }
       else if(v('Observaciones')) estPrev={hecho:false,fecha:'',nota:v('Observaciones')};
-      info=info.filter(i=>!['Estado','Fecha','Observaciones'].includes(i[0]));
+      const kz=info.find(i=>i[0]==='kmzrev');
+      if(kz){ try{ const o=JSON.parse(kz[1]); if((o.def&&o.def.length)||o.inst){ estPrev=estPrev||{hecho:false}; if(o.def&&o.def.length) estPrev.def=o.def; if(o.inst) estPrev.inst=o.inst; } }catch(err){} }
+      info=info.filter(i=>!['Estado','Fecha','Observaciones','kmzrev'].includes(i[0]) && !/^Defecto [A-Z0-9]{4}$/.test(i[0]));
     }
     Array.from(pm.getElementsByTagNameNS('*','Point')).forEach(pt=>{
       const c=coords(textoDe(pt,'coordinates'))[0]; if(!c) return;
@@ -837,7 +892,8 @@ function htmlIcono(e,claseExtra){
 }
 function iconoDe(p){
   const e=datos.estilos[p.estilo], ok=hecho(p.id);
-  const nm='<span class="nm">'+esc(p.nombre)+'</span><i class="chk"></i>';
+  const nd=(est(p.id).def||[]).length;
+  const nm='<span class="nm">'+esc(p.nombre)+'</span><i class="chk"></i>'+(nd?'<i class="ndef">'+nd+'</i>':'');
   if(!e){
     return L.divIcon({className:'kmk',iconSize:[18,18],iconAnchor:[9,9],html:'<div class="mk def'+(ok?' ok':'')+'">'+nm+'</div>'});
   }
@@ -1222,6 +1278,7 @@ function pintarFicha(){
   $('fEstadoTxt').textContent=h?'Realizado':'Pendiente';
   $('fEstadoSub').textContent=h?'Toca para volver a pendiente':'Toca para marcar como realizado';
   $('fReubicado').textContent=movido(p)?'Reubicado':'';
+  pintarDefsFicha();
   $('fOrigCont').style.display=(movido(p)&&!p.nuevo)?'':'none';
   $('fPropio').style.display=p.nuevo?'':'none';
   $('fRuta').href='https://www.google.com/maps/dir/?api=1&destination='+pos[0]+','+pos[1];
@@ -1238,7 +1295,7 @@ function abrirFicha(id){
 }
 function setEstado(cambios){
   const e=Object.assign({},est(actual),cambios);
-  Object.keys(e).forEach(k=>{ if(e[k]===undefined||e[k]===null||e[k]==='') delete e[k]; });
+  Object.keys(e).forEach(k=>{ if(e[k]===undefined||e[k]===null||e[k]===''||(Array.isArray(e[k])&&!e[k].length)) delete e[k]; });
   if(!e.hecho) delete e.hecho;
   if(Object.keys(e).length) datos.estado[actual]=e; else delete datos.estado[actual];
   guardar(); refrescarPunto(actual); pintarFicha();
@@ -1388,18 +1445,106 @@ $('fOrig').onclick=()=>{
   confirmar('Posición original','¿Devolver "'+p.nombre+'" a la posición que traía el KMZ?',()=>{ setEstado({pos:null}); mapa.setView([p.lat,p.lng],Math.max(mapa.getZoom(),17)); aviso('Posición original restaurada'); });
 };
 
+/* ================= Defectos ================= */
+const DEF_IDX={};
+Object.keys(window.DEFECTOS||{}).forEach(g=>DEFECTOS[g].forEach(d=>{ DEF_IDX[g+'|'+d.c]=d; }));
+const defInfo=(g,c)=>DEF_IDX[g+'|'+c];
+const FORMA_GUIA={apoyo:'MT',poste:'MT',linea:'MT',seccionador:'MT',fusible:'MT',interruptor:'MT',ct:'PT',trafo:'PT',armario:'BT'};
+let guiaSel='MT', defAbierto=null;
+try{ guiaSel=localStorage.getItem('kmzrev:guia')||'MT'; }catch(e){}
+function guiaPorDefecto(p){
+  const e=est(p.id); if(e.inst && GUIAS[e.inst]) return e.inst;
+  const ti=datos.estilos[p.estilo]; if(ti && FORMA_GUIA[ti.forma]) return FORMA_GUIA[ti.forma];
+  return GUIAS[guiaSel]?guiaSel:'MT';
+}
+function pintarDefsFicha(){
+  const p=puntoActual(); if(!p) return;
+  const ds=est(p.id).def||[];
+  $('fNdef').textContent=ds.length; $('fNdef').classList.toggle('cero',!ds.length);
+  $('fDefs').innerHTML=ds.map((d,i)=>{ const inf=defInfo(d.g,d.c)||{d:'(código no encontrado en la lista)'};
+    return '<div class="def-it"><div class="l1"><span class="cod">'+esc(d.c)+'</span><div class="txt">'+esc(inf.d)+'<small>'+esc((GUIAS[d.g]||{}).n||d.g)+(inf.g?' · '+esc(inf.g):'')+(d.f?' · '+fechaES(d.f):'')+'</small></div>'+
+      '<button class="quitar" data-i="'+i+'" aria-label="Quitar defecto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>'+
+      '<input data-i="'+i+'" placeholder="Observación de este defecto (opcional)" value="'+esc(d.o||'')+'"></div>'; }).join('');
+}
+$('fDefs').addEventListener('click',e=>{
+  const b=e.target.closest('.quitar'); if(!b) return;
+  const p=puntoActual(), ds=(est(p.id).def||[]).slice(), d=ds[+b.dataset.i];
+  confirmar('Quitar defecto','¿Quitar el defecto '+d.c+' de "'+p.nombre+'"?',()=>{ ds.splice(+b.dataset.i,1); setEstado({def:ds}); },'Quitar');
+});
+$('fDefs').addEventListener('input',e=>{
+  const inp=e.target; if(inp.dataset.i==null) return;
+  clearTimeout(inp._t); inp._t=setTimeout(()=>{
+    const p=puntoActual(); if(!p) return; const o=datos.estado[p.id]; if(!o||!o.def||!o.def[+inp.dataset.i]) return;
+    o.def[+inp.dataset.i].o=inp.value.trim(); guardar();
+  },400);
+});
+function pintarGuias(){
+  $('dGuia').innerHTML=Object.keys(GUIAS).map(g=>'<button data-g="'+g+'"'+(g===guiaSel?' class="on"':'')+'>'+esc(GUIAS[g].n)+'</button>').join('');
+  $('dGuiaNom').textContent=GUIAS[guiaSel].guia+' · '+DEFECTOS[guiaSel].length+' defectos';
+}
+function normal(s){ return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); }
+function pintarListaDef(){
+  const p=puntoActual(); if(!p) return;
+  const q=normal($('dBusca').value.trim()), ya=new Set((est(p.id).def||[]).map(d=>d.g+'|'+d.c));
+  // Al buscar, se busca en las 4 listas; si no, solo en la elegida
+  const fuentes=q?[guiaSel].concat(Object.keys(GUIAS).filter(g=>g!==guiaSel)):[guiaSel];
+  let html='', total=0;
+  fuentes.forEach(g=>{
+    let lista=DEFECTOS[g].filter(d=>!q || normal(d.c).includes(q) || normal(d.d).includes(q) || normal(d.g).includes(q) || normal(d.a||'').includes(q));
+    if(!lista.length) return;
+    total+=lista.length; let grp=null;
+    lista.forEach(d=>{
+      const gg=(q&&g!==guiaSel?GUIAS[g].n+' · ':'')+d.g;
+      if(gg!==grp){ grp=gg; html+='<div class="grp">'+esc(gg)+'</div>'; }
+      const k=g+'|'+d.c, abierto=defAbierto===k;
+      html+='<div class="dit'+(abierto?' abierto':'')+'" data-k="'+esc(k)+'"><div class="l1"><span class="cod">'+esc(d.c)+'</span><div class="txt">'+esc(d.d)+'</div>'+(ya.has(k)?'<span class="ya">✔ Añadido</span>':'')+'</div>'+
+        (abierto?'<div class="mas">'+(d.a?'<div class="ayuda">'+esc(d.a)+'</div>':'')+'<div class="fila-b"><input id="dObs" placeholder="Observación (opcional)"><button class="btn btn-ok" id="dAnadir">Añadir</button></div></div>':'')+'</div>';
+    });
+  });
+  if(!total) html='<div style="text-align:center;color:var(--texto-sec);padding:30px 10px">No hay defectos que coincidan</div>';
+  $('dLista').innerHTML=html;
+  if(defAbierto){ const el=$('dLista').querySelector('.dit.abierto'); if(el && el.scrollIntoView) el.scrollIntoView({block:'nearest'}); }
+}
+$('fAddDef').onclick=()=>{
+  const p=puntoActual(); if(!p) return;
+  guiaSel=guiaPorDefecto(p); defAbierto=null; $('dBusca').value='';
+  $('dSub').textContent=p.nombre;
+  pintarGuias(); pintarListaDef(); abrir('mDef'); $('dLista').scrollTop=0;
+};
+$('dGuia').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; guiaSel=b.dataset.g; defAbierto=null;
+  try{ localStorage.setItem('kmzrev:guia',guiaSel); }catch(err){} pintarGuias(); pintarListaDef(); $('dLista').scrollTop=0; });
+$('dBusca').addEventListener('input',()=>{ defAbierto=null; pintarListaDef(); });
+$('dLista').addEventListener('click',e=>{
+  if(e.target.id==='dAnadir'){
+    const p=puntoActual(), [g,c]=defAbierto.split('|'), ds=(est(p.id).def||[]).slice();
+    ds.push({g,c,o:($('dObs').value||'').trim(),f:hoyISO()});
+    setEstado({def:ds, inst:est(p.id).inst||g});
+    try{ localStorage.setItem('kmzrev:guia',g); }catch(err){}
+    defAbierto=null; cerrar('mDef'); aviso('Defecto '+c+' añadido');
+    if(navigator.vibrate) navigator.vibrate(30);
+    return;
+  }
+  if(e.target.closest('.mas')) return;
+  const it=e.target.closest('.dit'); if(!it) return;
+  defAbierto=defAbierto===it.dataset.k?null:it.dataset.k; pintarListaDef();
+  if(defAbierto){ const inp=$('dObs'); if(inp) inp.addEventListener('keydown',ev=>{ if(ev.key==='Enter') $('dAnadir').click(); }); }
+});
+$('dX').onclick=()=>cerrar('mDef');
+
 /* ================= Lista ================= */
 function pintarLista(){
   const q=$('lBusca').value.trim().toLowerCase(), carp=$('lCarpeta').value;
   let lista=datos.puntos.filter(p=>visible(p) && (!carp||p.carpeta===carp) &&
-    (!q || p.nombre.toLowerCase().includes(q) || p.carpeta.toLowerCase().includes(q) || (est(p.id).nota||'').toLowerCase().includes(q)));
+    (!$('lSoloDef').checked || (est(p.id).def||[]).length) &&
+    (!q || p.nombre.toLowerCase().includes(q) || p.carpeta.toLowerCase().includes(q) || (est(p.id).nota||'').toLowerCase().includes(q) || (est(p.id).def||[]).some(d=>d.c.toLowerCase().includes(q))));
   if(yo){ lista=lista.map(p=>{ const ps=posDe(p); return Object.assign({d:distM(yo[0],yo[1],ps[0],ps[1])},p); }).sort((a,b)=>a.d-b.d); }
   else lista=lista.slice().sort((a,b)=>a.carpeta.localeCompare(b.carpeta,'es')||a.nombre.localeCompare(b.nombre,'es',{numeric:true}));
   const max=400; let html='', grupo=null;
   lista.slice(0,max).forEach(p=>{
     if(!yo && p.carpeta!==grupo){ grupo=p.carpeta; if(grupo) html+='<div class="grupo">'+esc(grupo)+'</div>'; }
     const e=est(p.id);
-    const det=(e.hecho?('Realizado'+(e.fecha?' el '+fechaES(e.fecha):'')):'Pendiente')+(p.nuevo?' · nuevo':(e.pos?' · reubicado':''));
+    const nd=(e.def||[]).length;
+    const det=(e.hecho?('Realizado'+(e.fecha?' el '+fechaES(e.fecha):'')):'Pendiente')+(nd?' · '+nd+' defecto'+(nd>1?'s':'')+' ('+e.def.map(d=>d.c).join(', ')+')':'')+(p.nuevo?' · nuevo':(e.pos?' · reubicado':''));
     html+='<div class="item" data-id="'+esc(p.id)+'"><span class="ic'+(e.hecho?' ok':'')+'">'+htmlIcono(datos.estilos[p.estilo])+'</span><div><div class="nom">'+esc(p.nombre)+'</div><div class="det">'+esc(det)+(e.nota?' · '+esc(e.nota.slice(0,40)):'')+'</div></div>'+(p.d!=null?'<span class="dist">'+fmtDist(p.d)+'</span>':'')+'</div>';
   });
   if(lista.length>max) html+='<div class="grupo" style="text-align:center">… y '+(lista.length-max)+' más. Usa el buscador.</div>';
@@ -1421,6 +1566,7 @@ $('bLista').onclick=()=>{
 };
 $('lBusca').addEventListener('input',pintarLista);
 $('lCarpeta').addEventListener('change',pintarLista);
+$('lSoloDef').addEventListener('change',pintarLista);
 $('lCerrar').onclick=()=>cerrar('mLista');
 
 /* ================= Menú y exportaciones ================= */
@@ -1462,10 +1608,12 @@ function generarKMZ(){
   datos.puntos.forEach(p=>{ (porCarpeta[p.carpeta]=porCarpeta[p.carpeta]||[]).push(p); });
   const pm=p=>{
     const e=est(p.id), pos=posDe(p), base=(p.estilo&&datos.estilos[p.estilo])?p.estilo:'def';
-    const filas=[['Estado',e.hecho?'Realizado':'Pendiente']].concat(e.fecha?[['Fecha',fechaES(e.fecha)]]:[]).concat(e.nota?[['Observaciones',e.nota]]:[]).concat(p.nuevo?[['Creado en KMZrev','Sí']]:[]).concat(e.pos&&!p.nuevo?[['Posición original',p.lat+', '+p.lng]]:[]).concat(p.info.filter(i=>i[0]!=='Posición original'));
+    const filas=[['Estado',e.hecho?'Realizado':'Pendiente']].concat(e.fecha?[['Fecha',fechaES(e.fecha)]]:[]).concat(e.nota?[['Observaciones',e.nota]]:[])
+      .concat((e.def||[]).map(d=>['Defecto '+d.c, (defInfo(d.g,d.c)||{}).d+(d.o?' — '+d.o:'')])).concat(p.nuevo?[['Creado en KMZrev','Sí']]:[]).concat(e.pos&&!p.nuevo?[['Posición original',p.lat+', '+p.lng]]:[]).concat(p.info.filter(i=>i[0]!=='Posición original'));
     return '<Placemark><name>'+(e.hecho?'✔ ':'')+xml(p.nombre)+'</name><styleUrl>#'+base+'_'+(e.hecho?'h':'p')+'</styleUrl>'+
       '<description><![CDATA[<table>'+filas.map(([k,v])=>'<tr><td><b>'+esc(k)+'</b></td><td>'+esc(v)+'</td></tr>').join('')+'</table>]]></description>'+
-      '<ExtendedData><Data name="Estado"><value>'+(e.hecho?'Realizado':'Pendiente')+'</value></Data><Data name="Fecha"><value>'+xml(fechaES(e.fecha))+'</value></Data><Data name="Observaciones"><value>'+xml(e.nota||'')+'</value></Data></ExtendedData>'+
+      '<ExtendedData><Data name="Estado"><value>'+(e.hecho?'Realizado':'Pendiente')+'</value></Data><Data name="Fecha"><value>'+xml(fechaES(e.fecha))+'</value></Data><Data name="Observaciones"><value>'+xml(e.nota||'')+'</value></Data>'+
+      ((e.def&&e.def.length)||e.inst?'<Data name="kmzrev"><value>'+xml(JSON.stringify({def:e.def||[],inst:e.inst||''}))+'</value></Data>':'')+'</ExtendedData>'+
       '<Point><coordinates>'+pos[1]+','+pos[0]+',0</coordinates></Point></Placemark>';
   };
   // Reconstruir la jerarquía de carpetas
@@ -1485,13 +1633,71 @@ $('mExpKmz').onclick=async()=>{
   const blob=await generarKMZ().generateAsync({type:'blob',compression:'DEFLATE',mimeType:'application/vnd.google-earth.kmz'});
   descargar(baseNombre().replace(/_revisado.*$/,'')+'_revisado_'+hoyISO()+'.kmz',blob); cerrar('mMenu');
 };
-$('mExpCsv').onclick=()=>{
+/* ---- Excel (.xlsx) generado en el propio móvil ---- */
+function colLetra(i){ let s=''; i++; while(i){ const m=(i-1)%26; s=String.fromCharCode(65+m)+s; i=Math.floor((i-1)/26); } return s; }
+function serialFecha(iso){ if(!iso) return null; const [y,m,d]=iso.split('-').map(Number); return (Date.UTC(y,m-1,d)-Date.UTC(1899,11,30))/86400000; }
+async function crearXLSX(hojas){
+  const X=v=>String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'');
+  const zip=new JSZip();
+  zip.file('[Content_Types].xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+
+    hojas.map((h,i)=>'<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join('')+'</Types>');
+  zip.file('_rels/.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>');
+  zip.file('xl/_rels/workbook.xml.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+    hojas.map((h,i)=>'<Relationship Id="rId'+(i+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>').join('')+
+    '<Relationship Id="rId'+(hojas.length+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>');
+  zip.file('xl/workbook.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>'+
+    hojas.map((h,i)=>'<sheet name="'+X(h.nombre)+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>').join('')+'</sheets><definedNames>'+
+    hojas.map((h,i)=>'<definedName name="_xlnm._FilterDatabase" localSheetId="'+i+'" hidden="1">\''+X(h.nombre)+'\'!$A$1:$'+colLetra(h.cols.length-1)+'$'+(h.filas.length+1)+'</definedName>').join('')+'</definedNames></workbook>');
+  zip.file('xl/styles.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="dd/mm/yyyy"/></numFmts>'+
+    '<fonts count="3"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font><font><u/><sz val="11"/><color rgb="FF1E6FD9"/><name val="Calibri"/></font></fonts>'+
+    '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFEE6A1C"/><bgColor indexed="64"/></patternFill></fill></fills>'+
+    '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'+
+    '<cellXfs count="6"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top"/></xf>'+
+    '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf>'+
+    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'+
+    '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyAlignment="1"><alignment horizontal="left" vertical="top"/></xf>'+
+    '<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="top"/></xf>'+
+    '<xf numFmtId="2" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyAlignment="1"><alignment vertical="top"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>');
+  hojas.forEach((h,i)=>{
+    const celda=(v,tipo,ref)=>{
+      if(v==null||v==='') return '';
+      if(tipo==='fecha'){ const n=serialFecha(v); return n==null?'':'<c r="'+ref+'" s="3"><v>'+n+'</v></c>'; }
+      if(tipo==='num') return '<c r="'+ref+'"><v>'+(+v)+'</v></c>';
+      if(tipo==='coord') return '<c r="'+ref+'" s="0"><v>'+(+v)+'</v></c>';
+      if(tipo==='enlace') return '<c r="'+ref+'" s="4" t="str"><f>HYPERLINK("'+X(v)+'","Ver en mapa")</f><v>Ver en mapa</v></c>';
+      return '<c r="'+ref+'" s="'+(tipo==='largo'?2:0)+'" t="inlineStr"><is><t xml:space="preserve">'+X(v)+'</t></is></c>';
+    };
+    const cab='<row r="1" ht="30" customHeight="1">'+h.cols.map((c,j)=>'<c r="'+colLetra(j)+'1" s="1" t="inlineStr"><is><t>'+X(c.t)+'</t></is></c>').join('')+'</row>';
+    const filas=h.filas.map((f,k)=>'<row r="'+(k+2)+'">'+f.map((v,j)=>celda(v,h.cols[j].tipo,colLetra(j)+(k+2))).join('')+'</row>').join('');
+    const ult=colLetra(h.cols.length-1);
+    zip.file('xl/worksheets/sheet'+(i+1)+'.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'+
+      '<sheetViews><sheetView workbookViewId="0"'+(i===0?' tabSelected="1"':'')+'><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'+
+      '<cols>'+h.cols.map((c,j)=>'<col min="'+(j+1)+'" max="'+(j+1)+'" width="'+(c.w||14)+'" customWidth="1"/>').join('')+'</cols>'+
+      '<sheetData>'+cab+filas+'</sheetData><autoFilter ref="A1:'+ult+(h.filas.length+1)+'"/></worksheet>');
+  });
+  return zip.generateAsync({type:'blob',compression:'DEFLATE',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+$('mExpCsv').onclick=async()=>{
   if(!datos.puntos.length) return aviso('No hay centros cargados');
-  const c=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"', n=v=>String(v).replace('.',',');
-  const filas=[['Centro','Carpeta','Tipo','Estado','Fecha','Observaciones','Latitud','Longitud','Reubicado / Nuevo'].map(c).join(';')];
-  datos.puntos.forEach(p=>{ const e=est(p.id), pos=posDe(p), t=datos.estilos[p.estilo];
-    filas.push([p.nombre,p.carpeta,t?t.nombre:'',e.hecho?'Realizado':'Pendiente',fechaES(e.fecha),e.nota||'',n(pos[0]),n(pos[1]),p.nuevo?'Nuevo':(e.pos?'Sí':'')].map(c).join(';')); });
-  descargar(baseNombre()+'_'+hoyISO()+'.csv','﻿'+filas.join('\r\n'),'text/csv;charset=utf-8'); cerrar('mMenu');
+  const maps=pos=>'https://www.google.com/maps/search/?api=1&query='+pos[0]+','+pos[1];
+  const puntos=[], defs=[], resumen={};
+  datos.puntos.forEach(p=>{
+    const e=est(p.id), pos=posDe(p), t=datos.estilos[p.estilo], ds=e.def||[];
+    puntos.push([p.nombre,p.carpeta,t?t.nombre:'',e.inst?GUIAS[e.inst].n:'',e.hecho?'Realizado':'Pendiente',e.fecha||'',ds.length,ds.map(d=>d.c).join(', '),e.nota||'',+pos[0].toFixed(7),+pos[1].toFixed(7),p.nuevo?'Nuevo':(e.pos?'Reubicado':''),maps(pos)]);
+    ds.forEach(d=>{
+      const inf=defInfo(d.g,d.c)||{};
+      defs.push([p.nombre,p.carpeta,GUIAS[d.g]?GUIAS[d.g].n:d.g,d.c,inf.g||'',inf.d||'',d.o||'',d.f||'',e.hecho?'Realizado':'Pendiente',+pos[0].toFixed(7),+pos[1].toFixed(7),maps(pos)]);
+      const k=d.g+'|'+d.c; (resumen[k]=resumen[k]||{g:d.g,c:d.c,inf,n:0}).n++;
+    });
+  });
+  const res=Object.values(resumen).sort((a,b)=>b.n-a.n||a.c.localeCompare(b.c)).map(r=>[r.c,GUIAS[r.g]?GUIAS[r.g].n:r.g,r.inf.g||'',r.inf.d||'',r.n]);
+  const blob=await crearXLSX([
+    {nombre:'Puntos',cols:[{t:'Punto',w:18},{t:'Carpeta',w:22},{t:'Tipo',w:18},{t:'Instalación',w:14},{t:'Estado',w:11},{t:'Fecha realización',w:13,tipo:'fecha'},{t:'Nº defectos',w:10,tipo:'num'},{t:'Códigos',w:18},{t:'Observaciones',w:36,tipo:'largo'},{t:'Latitud',w:12,tipo:'coord'},{t:'Longitud',w:12,tipo:'coord'},{t:'Reubicado / Nuevo',w:12},{t:'Mapa',w:13,tipo:'enlace'}],filas:puntos},
+    {nombre:'Defectos',cols:[{t:'Punto',w:18},{t:'Carpeta',w:22},{t:'Instalación',w:14},{t:'Código',w:9},{t:'Grupo',w:18},{t:'Descripción',w:50,tipo:'largo'},{t:'Observación',w:36,tipo:'largo'},{t:'Fecha',w:12,tipo:'fecha'},{t:'Estado punto',w:12},{t:'Latitud',w:12,tipo:'coord'},{t:'Longitud',w:12,tipo:'coord'},{t:'Mapa',w:13,tipo:'enlace'}],filas:defs},
+    {nombre:'Resumen',cols:[{t:'Código',w:9},{t:'Instalación',w:14},{t:'Grupo',w:18},{t:'Descripción',w:60,tipo:'largo'},{t:'Cantidad',w:10,tipo:'num'}],filas:res}
+  ]);
+  descargar(baseNombre().replace(/_revisado.*$/,'')+'_'+hoyISO()+'.xlsx',blob); cerrar('mMenu');
+  aviso('Excel creado: '+puntos.length+' puntos y '+defs.length+' defectos');
 };
 $('mBackup').onclick=()=>{
   if(!datos.puntos.length) return aviso('No hay nada que guardar');
@@ -1509,8 +1715,10 @@ $('ficheroJson').addEventListener('change',async e=>{
 });
 $('mReset').onclick=()=>{
   if(!datos.puntos.length) return;
-  confirmar('Desmarcar todos','Todos los centros volverán a estar pendientes y se borrarán fechas y observaciones. Las posiciones corregidas se mantienen.',()=>{
-    Object.keys(datos.estado).forEach(id=>{ const p=datos.estado[id].pos; if(p) datos.estado[id]={pos:p}; else delete datos.estado[id]; });
+  confirmar('Desmarcar todos','Todos los centros volverán a estar pendientes y se borrarán fechas y observaciones. Los defectos anotados y las posiciones corregidas se mantienen.',()=>{
+    Object.keys(datos.estado).forEach(id=>{ const o=datos.estado[id], n={};
+      if(o.pos) n.pos=o.pos; if(o.def&&o.def.length) n.def=o.def; if(o.inst) n.inst=o.inst;
+      if(Object.keys(n).length) datos.estado[id]=n; else delete datos.estado[id]; });
     guardar(); cerrar('mMenu'); dibujarTodo(false); aviso('Todos pendientes');
   });
 };
