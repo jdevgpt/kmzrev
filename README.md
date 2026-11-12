@@ -17,7 +17,8 @@ Con Ortofoto PNOA o Mapa IGN elegido, en "Mapas sin cobertura" puedes descargar 
 2. Toca un centro en el mapa (o búscalo en **Lista**) y pulsa **Pendiente → Realizado**. Se pone la fecha de hoy (editable) y puedes añadir observaciones.
 3. Cada punto se ve con **el icono y el color que trae el KMZ** y su nombre al lado. Los realizados llevan un ✔ verde. Filtra por Todos / Pendientes / Realizados.
    - Botón **Aa**: muestra u oculta los nombres (se ven al acercar el mapa).
-   - Botón **Tipos**: lista los distintos iconos del KMZ con su avance y permite ocultar tipos.
+   - Botón **Tipos**: lista los tipos de punto con su avance, permite ocultarlos y, con el **lápiz**, cambiar su **icono, color y tamaño** (chinchetas, marcadores, formas y símbolos eléctricos: apoyos, transformador, CT, seccionador, fusible, interruptor, puesta a tierra, armario BT…). También se pueden crear tipos nuevos.
+   - En la ficha de cada punto, **Cambiar tipo** lo pasa a otro tipo.
    - Los puntos sin icono propio salen como círculo naranja (pendiente) o verde (realizado).
 4. **Reubicar un punto** desde su ficha: **Aquí (mi GPS)** lo coloca donde estás, o **Mover en el mapa** para dejarlo bajo la cruz roja. Siempre se puede volver a la posición original.
 5. **Crear puntos nuevos** con el botón **+**: coloca la cruz en el mapa (o pulsa GPS para ir a tu posición), pon nombre, elige el tipo de icono y la carpeta. Los puntos creados se pueden editar o eliminar desde su ficha, se mantienen al volver a cargar el KMZ y salen en las exportaciones. También puedes empezar sin KMZ.

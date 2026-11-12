@@ -1,5 +1,5 @@
 /* KMZrev · funcionamiento sin conexión */
-const VERSION = 'kmzrev-app-v4';
+const VERSION = 'kmzrev-app-v5';
 const TESELAS = 'kmzrev-teselas';      // mapas descargados a propósito (no se borran solos)
 const VISTAS  = 'kmzrev-vistas';       // trozos de mapa ya vistos (se van renovando)
 const MAX_VISTAS = 4000;

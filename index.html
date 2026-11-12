@@ -126,7 +126,7 @@
   .estado-btn small{color:var(--texto-sec)}
   .estado-btn.hecho{background:var(--verde-claro);border-color:var(--verde)}
   .estado-btn.hecho .circ{background:var(--verde);border-color:var(--verde)}
-  .tipo-fila{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--texto-sec);margin:-4px 0 10px}
+  .tipo-fila{display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:600;color:var(--texto);margin:-2px 0 10px;background:var(--gris);border-radius:12px;padding:8px 8px 8px 10px}
   .tipo-fila img,.tipo-fila .def-ic{width:22px;height:22px;object-fit:contain}
   .def-ic{border-radius:50%;background:var(--naranja);border:2px solid #fff;box-shadow:0 0 0 1px var(--gris-medio);display:inline-block}
   .reub{border:1px solid var(--gris-medio);border-radius:12px;padding:10px;margin-top:6px}
@@ -173,6 +173,26 @@
   .progdesc.ver{display:block}
   .progdesc .prog{height:10px;margin:6px 0}
   .progdesc .prog i{background:var(--naranja)}
+  /* Editor de tipos */
+  .tipo .lapiz{width:38px;height:38px;border-radius:10px;border:1px solid var(--gris-medio);background:#fff;display:grid;place-items:center;cursor:pointer;flex:none;color:var(--texto-sec)}
+  .tipo .lapiz svg{width:18px;height:18px}
+  .ed-prev{display:flex;align-items:center;gap:14px;background:#DDE5D5;border-radius:14px;padding:14px;margin:4px 0 6px;min-height:84px}
+  .ed-prev .mk{position:relative}
+  .ed-prev img{display:block}
+  .ed-prev .nmp{font:700 12px -apple-system,"Segoe UI",Roboto,sans-serif;background:rgba(255,255,255,.92);border:1px solid var(--gris-medio);border-radius:4px;padding:2px 6px}
+  .galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:6px}
+  .galeria button{overflow-wrap:anywhere;hyphens:auto}
+  .galeria button[data-f=orig] img{background:#9AA1A9;border-radius:8px;padding:3px}
+  .galeria button{border:2px solid var(--gris-medio);background:#fff;border-radius:12px;padding:6px 2px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;
+    font:600 .66rem -apple-system,"Segoe UI",Roboto,sans-serif;color:var(--texto-sec);line-height:1.1;text-align:center;min-height:68px}
+  .galeria button img{width:34px;height:34px;object-fit:contain}
+  .galeria button.on{border-color:var(--naranja);background:var(--naranja-claro);color:var(--texto)}
+  .colores{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .colores button{width:36px;height:36px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px var(--gris-medio);cursor:pointer}
+  .colores button.on{box-shadow:0 0 0 3px var(--texto)}
+  .colores label{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600;color:var(--texto-sec);cursor:pointer;margin-left:4px}
+  .colores input[type=color]{width:40px;height:36px;border:none;background:none;padding:0;cursor:pointer}
+  .tipo-fila .cambiar{margin-left:auto;height:32px;padding:0 12px;border-radius:9px;border:1px solid var(--gris-medio);background:#fff;font:inherit;font-size:.82rem;font-weight:700;color:var(--naranja-osc);cursor:pointer}
   /* Nuevo punto */
   .tipos-sel{display:flex;flex-wrap:wrap;gap:8px}
   .tipos-sel button{display:flex;align-items:center;gap:8px;padding:8px 12px 8px 8px;border-radius:12px;border:2px solid var(--gris-medio);
@@ -363,6 +383,49 @@
   </div>
 </div>
 
+<!-- Editor de tipo -->
+<div class="modal" id="mEstilo" style="z-index:2300">
+  <div class="hoja">
+    <div class="hoja-cab" style="align-items:center">
+      <div><h2 id="eTit">Editar tipo</h2></div>
+      <button class="x" id="eX" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="scroll">
+      <div class="ed-prev"><span id="ePrev"></span><span class="nmp" id="ePrevNom"></span></div>
+      <label class="lbl" for="eNombre">Nombre del tipo</label>
+      <input class="campo" id="eNombre" placeholder="Ej.: Apoyo metálico" autocomplete="off">
+      <label class="lbl">Color</label>
+      <div class="colores" id="eColores"></div>
+      <label class="lbl">Tamaño</label>
+      <div class="detalle" id="eTam" style="margin:0">
+        <button data-s="22">Pequeño</button><button data-s="28">Normal</button><button data-s="36">Grande</button><button data-s="44">Muy grande</button>
+      </div>
+      <label class="lbl">Icono</label>
+      <div class="galeria" id="eGaleria"></div>
+      <div id="eBorrarCont" style="margin-top:14px"><button class="mini tenue" id="eBorrar" style="width:100%;color:var(--rojo)">Eliminar este tipo (sus puntos quedan como círculo)</button></div>
+    </div>
+    <div class="botones">
+      <button class="btn btn-sec" id="eNo">Cancelar</button>
+      <button class="btn btn-ok" id="eSi">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Elegir tipo de un punto -->
+<div class="modal" id="mTipoSel" style="z-index:2200">
+  <div class="hoja">
+    <div class="hoja-cab" style="align-items:center">
+      <div><h2>Tipo del punto</h2><div class="sub" id="sNombre" style="margin:0"></div></div>
+      <button class="x" id="sX" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="scroll"><div class="tipos-sel" id="sTipos" style="margin-top:6px"></div></div>
+    <div class="botones">
+      <button class="btn btn-sec" id="sEditar">Editar este tipo</button>
+      <button class="btn btn-ok" id="sNuevo">+ Nuevo tipo</button>
+    </div>
+  </div>
+</div>
+
 <!-- Nuevo / editar punto -->
 <div class="modal" id="mNuevo" style="z-index:2200">
   <div class="hoja">
@@ -405,11 +468,11 @@
 <div class="modal" id="mTipos">
   <div class="hoja">
     <div class="hoja-cab" style="margin-bottom:6px;align-items:center">
-      <div><h2>Tipos de punto</h2><div class="sub" style="margin:0">Toca para mostrar u ocultar en el mapa</div></div>
+      <div><h2>Tipos de punto</h2><div class="sub" style="margin:0">Casilla: mostrar u ocultar · Lápiz: cambiar icono y color</div></div>
       <button class="x" id="tCerrar" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
     <div class="scroll" id="tItems"></div>
-    <div class="botones"><button class="btn btn-sec" id="tTodos">Mostrar todos</button></div>
+    <div class="botones"><button class="btn btn-sec" id="tTodos">Mostrar todos</button><button class="btn btn-ok" id="tNuevo">+ Nuevo tipo</button></div>
   </div>
 </div>
 
@@ -655,6 +718,7 @@ async function procesarEstilos(puntos, recursos){
         const lado=Math.min(Math.max(w,h),96), k=lado/Math.max(w,h);
         const cv=document.createElement('canvas'); cv.width=Math.round(w*k); cv.height=Math.round(h*k);
         const cx=cv.getContext('2d'); cx.drawImage(im,0,0,cv.width,cv.height);
+        e.orig=cv.toDataURL('image/png'); e.forma='orig'; e.colorSel=blanco?'':st.color.css;
         if(!blanco){
           cx.globalCompositeOperation='multiply'; cx.fillStyle=st.color.css; cx.fillRect(0,0,cv.width,cv.height);
           cx.globalCompositeOperation='destination-in'; cx.drawImage(im,0,0,cv.width,cv.height);
@@ -841,7 +905,7 @@ function pintarControles(){
   $('cCapa').classList.toggle('activo',capaBase!=='calles'||verCatastro);
   $('cNombres').classList.toggle('activo',nombresVisibles);
   const nTipos=new Set(datos.puntos.map(p=>p.estilo||'_def')).size;
-  $('cTipos').style.display=nTipos>1?'':'none';
+  $('cTipos').style.display=(datos.puntos.length||Object.keys(datos.estilos).length)?'':'none';
   $('cTipos').classList.toggle('activo',ocultos.size>0);
 }
 $('cCapa').onclick=()=>{ pintarCapas(); infoDescargas(); abrir('mCapas'); };
@@ -978,7 +1042,11 @@ function tiposLista(){
 }
 function pintarTipos(){
   $('tItems').innerHTML=tiposLista().map(t=>
-    '<label class="tipo'+(ocultos.has(t.k)?' off':'')+'"><span class="ic">'+htmlIcono(t.e)+'</span><span class="tn"><b>'+esc(t.nombre)+'</b><small>'+t.c.h+' / '+t.c.t+' realizados</small></span><input type="checkbox" data-k="'+esc(t.k)+'"'+(ocultos.has(t.k)?'':' checked')+'></label>').join('');
+    '<label class="tipo'+(ocultos.has(t.k)?' off':'')+'"><span class="ic">'+htmlIcono(t.e)+'</span><span class="tn"><b>'+esc(t.nombre)+'</b><small>'+t.c.h+' / '+t.c.t+' realizados</small></span>'+
+    '<button type="button" class="lapiz" data-k="'+esc(t.k)+'" aria-label="Editar icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button>'+
+    '<input type="checkbox" data-k="'+esc(t.k)+'"'+(ocultos.has(t.k)?'':' checked')+'></label>').join('')+
+    // tipos creados sin puntos todavía
+    Object.keys(datos.estilos).filter(k=>!datos.puntos.some(p=>p.estilo===k)).map(k=>'<label class="tipo"><span class="ic">'+htmlIcono(datos.estilos[k])+'</span><span class="tn"><b>'+esc(datos.estilos[k].nombre)+'</b><small>Sin puntos todavía</small></span><button type="button" class="lapiz" data-k="'+esc(k)+'" aria-label="Editar icono"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button></label>').join('');
 }
 $('cTipos').onclick=()=>{ pintarTipos(); abrir('mTipos'); };
 $('tItems').addEventListener('change',e=>{
@@ -988,6 +1056,147 @@ $('tItems').addEventListener('change',e=>{
 });
 $('tTodos').onclick=()=>{ ocultos.clear(); guardarOcultos(); aplicarFiltro(); pintarTipos(); pintarControles(); };
 $('tCerrar').onclick=()=>cerrar('mTipos');
+
+/* ================= Biblioteca de iconos ================= */
+const PALETA=['#EE6A1C','#D32F2F','#F9C80E','#2E9E5B','#1E6FD9','#29B6F6','#8E44AD','#E84393','#8D5524','#6B7280','#222222','#FFFFFF'];
+function claro(c){ const h=c.replace('#',''); const r=parseInt(h.substr(0,2),16),g=parseInt(h.substr(2,2),16),b=parseInt(h.substr(4,2),16); return (r*299+g*587+b*114)/1000>170; }
+function estrella(cx,cy,R,r){ let d=''; for(let i=0;i<10;i++){ const a=-Math.PI/2+i*Math.PI/5, rr=i%2?r:R; d+=(i?'L':'M')+(cx+rr*Math.cos(a)).toFixed(1)+' '+(cy+rr*Math.sin(a)).toFixed(1); } return d+'Z'; }
+const SOMBRA='stroke="rgba(0,0,0,.35)" stroke-width="6" stroke-linejoin="round"';
+const insignia=(c,glifo)=>{ const g=claro(c)?'#262A2F':'#FFFFFF', borde=claro(c)?'#555':'#FFFFFF';
+  return '<circle cx="32" cy="32" r="27" fill="none" '+SOMBRA+'/><circle cx="32" cy="32" r="27" fill="'+c+'" stroke="'+borde+'" stroke-width="3"/>'+
+         '<g fill="none" stroke="'+g+'" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">'+glifo(g)+'</g>'; };
+const FORMAS={
+  marcador:{n:'Marcador',a:[.5,.97],svg:c=>{ const p='M32 61C32 61 9 37 9 24a23 23 0 0 1 46 0c0 13-23 37-23 37z';
+    return '<path d="'+p+'" fill="none" '+SOMBRA+'/><path d="'+p+'" fill="'+c+'" stroke="'+(claro(c)?'#555':'#fff')+'" stroke-width="3"/><circle cx="32" cy="24" r="8" fill="'+(claro(c)?'#555':'#fff')+'"/>'; }},
+  chincheta:{n:'Chincheta',a:[.5,.97],svg:c=>'<path d="M32 33V61" stroke="#444" stroke-width="3.5" stroke-linecap="round"/><circle cx="32" cy="19" r="15" fill="none" '+SOMBRA+'/><circle cx="32" cy="19" r="15" fill="'+c+'" stroke="'+(claro(c)?'#555':'#fff')+'" stroke-width="3"/><circle cx="26.5" cy="13.5" r="4.5" fill="#fff" opacity=".55"/>'},
+  bandera:{n:'Bandera',a:[.22,.95],svg:c=>'<path d="M14 61V6" stroke="#444" stroke-width="3.5" stroke-linecap="round"/><path d="M16 7h36l-8 12 8 12H16z" fill="none" '+SOMBRA+'/><path d="M16 7h36l-8 12 8 12H16z" fill="'+c+'" stroke="'+(claro(c)?'#555':'#fff')+'" stroke-width="2.5" stroke-linejoin="round"/>'},
+  circulo:{n:'Círculo',svg:c=>'<circle cx="32" cy="32" r="22" fill="none" '+SOMBRA+'/><circle cx="32" cy="32" r="22" fill="'+c+'" stroke="'+(claro(c)?'#555':'#fff')+'" stroke-width="4"/>'},
+  cuadrado:{n:'Cuadrado',svg:c=>'<rect x="11" y="11" width="42" height="42" rx="6" fill="none" '+SOMBRA+'/><rect x="11" y="11" width="42" height="42" rx="6" fill="'+c+'" stroke="'+(claro(c)?'#555':'#fff')+'" stroke-width="4"/>'},
+  triangulo:{n:'Triángulo',svg:c=>{ const p='M32 7L58 53H6z'; return '<path d="'+p+'" fill="none" '+SOMBRA+'/><path d="'+p+'" fill="'+c+'" stroke="'+(claro(c)?'#555':'#fff')+'" stroke-width="4" stroke-linejoin="round"/>'; }},
+  rombo:{n:'Rombo',svg:c=>{ const p='M32 5L59 32 32 59 5 32z'; return '<path d="'+p+'" fill="none" '+SOMBRA+'/><path d="'+p+'" fill="'+c+'" stroke="'+(claro(c)?'#555':'#fff')+'" stroke-width="4" stroke-linejoin="round"/>'; }},
+  estrella:{n:'Estrella',svg:c=>{ const p=estrella(32,34,28,12); return '<path d="'+p+'" fill="none" '+SOMBRA+'/><path d="'+p+'" fill="'+c+'" stroke="'+(claro(c)?'#555':'#fff')+'" stroke-width="3" stroke-linejoin="round"/>'; }},
+  apoyo:{n:'Apoyo metálico',svg:c=>insignia(c,()=>'<path d="M25 52l5-38h4l5 38M20 22h24M22 31h20M29.4 22l6.6 9M34.6 22L28 31M27.2 31l9.6 11M36.8 31l-9.6 11M26 42h12M32 14V9"/>')},
+  poste:{n:'Apoyo hormigón / madera',svg:c=>insignia(c,()=>'<path d="M32 12v40M18 20h28M20 20v5M44 20v5M32 20v5"/>')},
+  trafo:{n:'Transformador',svg:c=>insignia(c,()=>'<circle cx="26" cy="32" r="10"/><circle cx="38" cy="32" r="10"/>')},
+  ct:{n:'Centro de transformación',svg:c=>insignia(c,g=>'<path d="M15 30L32 16l17 14v20H15z"/><path d="M34.5 24L27 36h6l-3 9 8-13h-6z" fill="'+g+'" stroke-width="1.5"/>')},
+  seccionador:{n:'Seccionador',svg:c=>insignia(c,g=>'<path d="M11 40h11M42 40h11M23 40l16-14"/><circle cx="23" cy="40" r="2.5" fill="'+g+'"/><circle cx="41" cy="40" r="2.5" fill="'+g+'"/>')},
+  fusible:{n:'Fusible',svg:c=>insignia(c,()=>'<path d="M11 32h42"/><rect x="21" y="25" width="22" height="14" rx="2"/>')},
+  interruptor:{n:'Interruptor',svg:c=>insignia(c,g=>'<path d="M11 40h11M42 40h11M23 40l16-14M28 22l6 6M34 22l-6 6"/><circle cx="23" cy="40" r="2.5" fill="'+g+'"/>')},
+  tierra:{n:'Puesta a tierra',svg:c=>insignia(c,()=>'<path d="M32 12v18M17 30h30M22 38h20M27 46h10"/>')},
+  armario:{n:'Armario / caja BT',svg:c=>insignia(c,g=>'<rect x="20" y="13" width="24" height="38" rx="2"/><path d="M33.5 21L28 31h5l-2 8 6-11h-5z" fill="'+g+'" stroke-width="1.5"/>')},
+  linea:{n:'Línea / conductor',svg:c=>insignia(c,()=>'<path d="M10 24c8 10 14 10 22 0s14-10 22 0M10 38c8 10 14 10 22 0s14-10 22 0"/>')},
+  peligro:{n:'Peligro',svg:c=>insignia(c,g=>'<path d="M32 15L50 46H14z"/><path d="M32 26v9"/><circle cx="32" cy="40.5" r="1.8" fill="'+g+'"/>')},
+  defecto:{n:'Defecto',svg:c=>insignia(c,()=>'<path d="M22 22l20 20M42 22L22 42"/>')},
+  ok:{n:'Correcto',svg:c=>insignia(c,()=>'<path d="M20 33l8 8 16-17"/>')},
+  info:{n:'Información',svg:c=>insignia(c,g=>'<path d="M32 29v15"/><circle cx="32" cy="21" r="2.2" fill="'+g+'"/>')}
+};
+const svgForma=(f,c)=>'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">'+FORMAS[f].svg(c)+'</svg>';
+const urlSvg=svg=>'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+async function tintarImg(src,color){
+  const im=await cargarImg(src), cv=document.createElement('canvas'); cv.width=im.naturalWidth; cv.height=im.naturalHeight;
+  const cx=cv.getContext('2d'); cx.drawImage(im,0,0);
+  if(color && !/^#?ffffff$/i.test(color)){
+    cx.globalCompositeOperation='multiply'; cx.fillStyle=color; cx.fillRect(0,0,cv.width,cv.height);
+    cx.globalCompositeOperation='destination-in'; cx.drawImage(im,0,0);
+  }
+  return cv.toDataURL('image/png');
+}
+// Devuelve {img, ax, ay} listo para usar como icono (PNG, válido también para Google Earth)
+async function renderIcono(forma,color,orig){
+  if(forma==='orig' && orig) return {img:await tintarImg(orig,color)};
+  const im=await cargarImg(urlSvg(svgForma(forma,color||'#EE6A1C')));
+  const cv=document.createElement('canvas'); cv.width=cv.height=96; cv.getContext('2d').drawImage(im,0,0,96,96);
+  const a=FORMAS[forma].a||[.5,.5];
+  return {img:cv.toDataURL('image/png'),ax:a[0],ay:a[1]};
+}
+
+/* ================= Editor de tipos ================= */
+let ed=null; // {k, nombre, forma, color, size, orig, alGuardar}
+function abrirEditor(k,alGuardar){
+  const e=k&&k!=='_def'?datos.estilos[k]:null;
+  ed={k:k||null, nombre:e?e.nombre:(k==='_def'?'Círculo':''), forma:e?(e.forma||(e.orig?'orig':'marcador')):'marcador',
+      color:e?(e.colorSel||(e.color&&e.forma!=='orig'?e.color:'')||(e.orig?'':'#EE6A1C')):'#EE6A1C', size:e?e.size:28, orig:e?e.orig:null, alGuardar};
+  if(ed.forma==='orig' && !ed.orig) ed.forma='marcador';
+  if(!ed.color && ed.forma!=='orig') ed.color='#EE6A1C';
+  $('eTit').textContent=k&&k!=='_def'?'Editar tipo':(k==='_def'?'Dar icono a los puntos sin icono':'Nuevo tipo');
+  $('eNombre').value=ed.nombre;
+  $('eBorrarCont').style.display=(e)?'':'none';
+  pintarEditor(); abrir('mEstilo'); if(!k) setTimeout(()=>$('eNombre').focus(),150);
+}
+async function pintarEditor(){
+  const c=ed.color||'#FFFFFF';
+  $('eColores').innerHTML=(ed.forma==='orig'?'<button data-c="" title="Color original" style="background:conic-gradient(#e33,#fc3,#3c6,#39f,#c3f,#e33)"'+(ed.color===''?' class="on"':'')+'></button>':'')+
+    PALETA.map(p=>'<button data-c="'+p+'" style="background:'+p+'"'+(ed.color.toLowerCase()===p.toLowerCase()?' class="on"':'')+'></button>').join('')+
+    '<label>Otro <input type="color" id="eColorLibre" value="'+(ed.color||'#ee6a1c')+'"></label>';
+  $('eTam').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.s===ed.size));
+  const op=[];
+  if(ed.orig) op.push('<button data-f="orig"'+(ed.forma==='orig'?' class="on"':'')+'><img src="'+esc(ed.orig)+'" alt="">Icono del KMZ</button>');
+  Object.keys(FORMAS).forEach(f=>op.push('<button data-f="'+f+'"'+(ed.forma===f?' class="on"':'')+'><img src="'+urlSvg(svgForma(f,c))+'" alt="">'+esc(FORMAS[f].n)+'</button>'));
+  $('eGaleria').innerHTML=op.join('');
+  $('ePrevNom').textContent=$('eNombre').value.trim()||'Nombre';
+  try{ const r=await renderIcono(ed.forma,ed.color,ed.orig); $('ePrev').innerHTML='<img src="'+r.img+'" width="'+ed.size+'" height="'+ed.size+'" style="width:'+ed.size+'px;height:'+ed.size+'px;object-fit:contain" alt="">'; }catch(err){}
+}
+$('eColores').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; ed.color=b.dataset.c; pintarEditor(); });
+$('eColores').addEventListener('change',e=>{ if(e.target.id==='eColorLibre'){ ed.color=e.target.value; pintarEditor(); } });
+$('eTam').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; ed.size=+b.dataset.s; pintarEditor(); });
+$('eGaleria').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; ed.forma=b.dataset.f; if(ed.forma!=='orig'&&!ed.color) ed.color='#EE6A1C'; pintarEditor(); });
+$('eNombre').addEventListener('input',()=>{ $('ePrevNom').textContent=$('eNombre').value.trim()||'Nombre'; });
+$('eX').onclick=$('eNo').onclick=()=>{ cerrar('mEstilo'); ed=null; };
+$('eSi').onclick=async()=>{
+  const nombre=$('eNombre').value.trim();
+  if(!nombre){ aviso('Pon un nombre al tipo'); $('eNombre').focus(); return; }
+  let r; try{ r=await renderIcono(ed.forma,ed.color,ed.orig); }catch(err){ aviso('No se pudo crear el icono'); return; }
+  const esNuevo=!ed.k||ed.k==='_def', k=esNuevo?'u'+Date.now().toString(36):ed.k;
+  const prev=datos.estilos[k]||{};
+  const e=Object.assign({},prev,{nombre,forma:ed.forma,colorSel:ed.color,color:ed.color,img:r.img,size:ed.size,tintado:false});
+  if(ed.orig) e.orig=ed.orig;
+  if(ed.forma!=='orig'){ e.ax=r.ax; e.ay=r.ay; }
+  else { if(e.ax==null) e.ax=.5; if(e.ay==null) e.ay=.5; }
+  delete e.remoto; if(!e.img.startsWith('data:')) e.href=e.img; else e.href='';
+  datos.estilos[k]=e;
+  if(ed.k==='_def'){ datos.puntos.forEach(p=>{ if(!p.estilo||!datos.estilos[p.estilo]) p.estilo=k; }); if(ocultos.delete('_def')) guardarOcultos(); }
+  guardar(); dibujarTodo(false);
+  const cb=ed.alGuardar; cerrar('mEstilo'); ed=null;
+  aviso(esNuevo?'Tipo "'+nombre+'" creado':'Tipo actualizado');
+  if(cb) cb(k);
+};
+$('eBorrar').onclick=()=>{
+  const k=ed.k, e=datos.estilos[k]; if(!e) return;
+  const n=datos.puntos.filter(p=>p.estilo===k).length;
+  confirmar('Eliminar tipo','¿Eliminar el tipo "'+e.nombre+'"?'+(n?' Sus '+n+' puntos quedarán como círculo naranja.':''),()=>{
+    datos.puntos.forEach(p=>{ if(p.estilo===k) delete p.estilo; }); delete datos.estilos[k];
+    if(ocultos.delete(k)) guardarOcultos();
+    guardar(); dibujarTodo(false); const cb=ed&&ed.alGuardar; cerrar('mEstilo'); ed=null; aviso('Tipo eliminado'); if(cb) cb(null);
+  },'Eliminar');
+};
+$('tNuevo').onclick=()=>abrirEditor(null,()=>pintarTipos());
+$('tItems').addEventListener('click',e=>{
+  const b=e.target.closest('.lapiz'); if(!b) return;
+  e.preventDefault(); e.stopPropagation();
+  abrirEditor(b.dataset.k,()=>pintarTipos());
+});
+
+// Cambiar el tipo de un punto
+function pintarTipoSel(){
+  const p=puntoActual(); if(!p) return;
+  $('sNombre').textContent=p.nombre;
+  const actualK=(p.estilo&&datos.estilos[p.estilo])?p.estilo:'';
+  const tipos=Object.keys(datos.estilos).map(k=>({k,e:datos.estilos[k]})).sort((a,b)=>a.e.nombre.localeCompare(b.e.nombre,'es',{numeric:true}));
+  $('sTipos').innerHTML='<button type="button" data-k=""'+(actualK===''?' class="on"':'')+'><span class="ic">'+htmlIcono(null)+'</span>Círculo (sin tipo)</button>'+
+    tipos.map(t=>'<button type="button" data-k="'+esc(t.k)+'"'+(actualK===t.k?' class="on"':'')+'><span class="ic">'+htmlIcono(t.e)+'</span>'+esc(t.e.nombre)+'</button>').join('');
+  $('sEditar').style.display=actualK?'':'none';
+}
+function asignarTipo(k){
+  const p=puntoActual(); if(!p) return;
+  if(k) p.estilo=k; else delete p.estilo;
+  if(k && ocultos.delete(k)) { guardarOcultos(); aplicarFiltro(); }
+  guardar(); refrescarPunto(p.id); pintarFicha(); pintarControles();
+}
+$('sTipos').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; asignarTipo(b.dataset.k); cerrar('mTipoSel'); aviso('Tipo cambiado'); });
+$('sX').onclick=()=>cerrar('mTipoSel');
+$('sNuevo').onclick=()=>abrirEditor(null,k=>{ if(k) asignarTipo(k); cerrar('mTipoSel'); });
+$('sEditar').onclick=()=>{ const p=puntoActual(); if(p&&p.estilo) abrirEditor(p.estilo,()=>{ pintarTipoSel(); pintarFicha(); }); };
+$('fTipo').addEventListener('click',e=>{ if(e.target.closest('.cambiar')){ pintarTipoSel(); abrir('mTipoSel'); } });
 
 /* ================= Filtro ================= */
 $('filtro').addEventListener('click',e=>{
@@ -1008,8 +1217,7 @@ function pintarFicha(){
   if(yo) sub+=' · a '+fmtDist(distM(yo[0],yo[1],pos[0],pos[1]));
   $('fSub').textContent=sub;
   const ti=p.estilo?datos.estilos[p.estilo]:null;
-  $('fTipo').innerHTML=ti?('<span class="ic">'+htmlIcono(ti)+'</span>'+esc(ti.nombre)):'';
-  $('fTipo').style.display=(ti && Object.keys(datos.estilos).length>0)?'':'none';
+  $('fTipo').innerHTML='<span class="ic">'+htmlIcono(ti)+'</span>'+esc(ti?ti.nombre:'Sin tipo')+'<button type="button" class="cambiar">Cambiar tipo</button>';
   $('fEstado').classList.toggle('hecho',h);
   $('fEstadoTxt').textContent=h?'Realizado':'Pendiente';
   $('fEstadoSub').textContent=h?'Toca para volver a pendiente':'Toca para marcar como realizado';
@@ -1118,9 +1326,12 @@ $('bSinKmz').onclick=()=>{ $('vacio').classList.remove('ver'); sinKmz=true; };
 function pintarTiposSel(){
   const tipos=Object.keys(datos.estilos).map(k=>({k,e:datos.estilos[k]})).sort((a,b)=>a.e.nombre.localeCompare(b.e.nombre,'es',{numeric:true}));
   $('nTipos').innerHTML='<button type="button" data-k=""'+(nuevoEstilo===''?' class="on"':'')+'><span class="ic">'+htmlIcono(null)+'</span>Círculo</button>'+
-    tipos.map(t=>'<button type="button" data-k="'+esc(t.k)+'"'+(nuevoEstilo===t.k?' class="on"':'')+'><span class="ic">'+htmlIcono(t.e)+'</span>'+esc(t.e.nombre)+'</button>').join('');
+    tipos.map(t=>'<button type="button" data-k="'+esc(t.k)+'"'+(nuevoEstilo===t.k?' class="on"':'')+'><span class="ic">'+htmlIcono(t.e)+'</span>'+esc(t.e.nombre)+'</button>').join('')+
+    '<button type="button" data-nuevo="1" style="border-style:dashed;color:var(--naranja-osc)">+ Nuevo tipo</button>';
 }
-$('nTipos').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; nuevoEstilo=b.dataset.k; pintarTiposSel(); });
+$('nTipos').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.nuevo){ abrirEditor(null,k=>{ if(k) nuevoEstilo=k; pintarTiposSel(); }); return; }
+  nuevoEstilo=b.dataset.k; pintarTiposSel(); });
 function formNuevo(pos,p){
   nuevoPos=pos; editando=p?p.id:null;
   $('nTit').textContent=p?'Editar punto':'Nuevo punto';
