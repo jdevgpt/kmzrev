@@ -226,6 +226,43 @@
   .seg.guias button{font-size:.8rem}
   .solo-def{display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:600;color:var(--texto-sec);margin:-2px 0 8px;cursor:pointer;flex:none}
   .solo-def input{width:20px;height:20px;accent-color:var(--rojo)}
+  /* Equipo */
+  .trab-chip{position:absolute;left:54px;top:10px;z-index:940;max-width:calc(100% - 120px);display:none;align-items:center;gap:7px;background:#fff;
+    border-radius:20px;padding:6px 12px 6px 9px;box-shadow:0 1px 5px rgba(0,0,0,.3);font:700 .8rem -apple-system,"Segoe UI",Roboto,sans-serif;cursor:pointer;border:none;color:var(--texto)}
+  .trab-chip.ver{display:flex}
+  .trab-chip .tn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+  .trab-chip .st{font-weight:600;color:var(--texto-sec);white-space:nowrap}
+  .punto-st{width:9px;height:9px;border-radius:50%;background:var(--verde);flex:none}
+  .punto-st.pend{background:#F2A900}.punto-st.off{background:var(--texto-sec)}.punto-st.err{background:var(--rojo)}
+  .punto-st.sync{background:var(--naranja);animation:lat 1s infinite alternate}
+  @keyframes lat{to{opacity:.3}}
+  body.mover .trab-chip{display:none}
+  .mk.rsv:not(.def) > img,.mk.rsv:not(.def) .tw{filter:drop-shadow(0 0 2px #7C3AED) drop-shadow(0 0 2px #7C3AED)}
+  .mk.def.rsv{box-shadow:0 0 0 3px #7C3AED}
+  .mk .nm .rv{color:#7C3AED;margin-left:4px}
+  .comp{width:30px;height:30px;border-radius:50%;background:#2F7BEA;color:#fff;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);
+    display:grid;place-items:center;font:800 11px -apple-system,"Segoe UI",Roboto,sans-serif;position:relative}
+  .comp span{position:absolute;left:32px;top:50%;transform:translateY(-50%);white-space:nowrap;background:#2F7BEA;color:#fff;border-radius:5px;padding:2px 6px;font-size:11px;font-weight:700}
+  #mapa.lejos .comp span{display:none}
+  .voy-fila{display:flex;align-items:center;gap:10px;margin:-2px 0 10px;padding:8px 10px;border-radius:12px;background:#F3EEFE;border:1px solid #DDD0FB}
+  .voy-fila .mini{flex:none;min-width:0;padding:0 12px;color:#5B21B6;border-color:#C9B5F7}
+  .voy-fila .mini svg{color:#7C3AED}
+  .voy-fila span{font-size:.82rem;color:#4C1D95;font-weight:600;line-height:1.25}
+  .tr-it{display:flex;align-items:center;gap:10px;padding:12px 4px;border-top:1px solid var(--gris)}
+  .tr-it:first-child{border-top:none}
+  .tr-it .tn{flex:1;min-width:0}
+  .tr-it .tn b{display:block;word-break:break-word}
+  .tr-it .tn small{color:var(--texto-sec);font-size:.78rem}
+  .tr-it .mini{flex:none;min-width:0;padding:0 14px}
+  .tr-it .abierto{font-size:.78rem;font-weight:800;color:var(--verde);flex:none;padding:0 6px}
+  .tr-it .quitar-tr{flex:none;width:36px;height:36px;border-radius:9px;border:1px solid var(--gris-medio);background:#fff;color:var(--rojo);cursor:pointer;display:grid;place-items:center}
+  .tr-it .quitar-tr svg{width:16px;height:16px}
+  .eq-form .campo{margin-bottom:8px}
+  .eq-ok{display:flex;align-items:center;gap:10px;background:var(--verde-claro);border-radius:12px;padding:10px 12px;font-size:.88rem;flex-wrap:wrap}
+  .eq-ok b{color:var(--verde)}
+  .interr{display:flex;align-items:center;gap:10px;margin:10px 0 4px;font-size:.88rem;font-weight:600;cursor:pointer}
+  .interr input{width:22px;height:22px;accent-color:var(--naranja);flex:none}
+  .nota-eq{font-size:.8rem;color:var(--texto-sec);margin:6px 0}
   /* Nuevo punto */
   .tipos-sel{display:flex;flex-wrap:wrap;gap:8px}
   .tipos-sel button{display:flex;align-items:center;gap:8px;padding:8px 12px 8px 8px;border-radius:12px;border:2px solid var(--gris-medio);
@@ -297,6 +334,7 @@
 
 <div class="zona">
   <div id="mapa"></div>
+  <button class="trab-chip" id="trabChip"><span class="punto-st" id="chipSt"></span><span class="tn" id="chipNom"></span><span class="st" id="chipTxt"></span></button>
   <svg class="mira" viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="23" cy="23" r="9"/><path d="M23 2v12M23 32v12M2 23h12M32 23h12"/><circle cx="23" cy="23" r="1.6" fill="currentColor"/></svg>
   <div class="aviso-mover" id="avisoMover">
     <p id="moverTxt"></p>
@@ -350,6 +388,7 @@
         <span class="circ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
         <span><b id="fEstadoTxt"></b><small id="fEstadoSub"></small></span>
       </button>
+      <div class="voy-fila" id="fVoyFila"><button class="mini" id="fVoy"></button><span id="fVoyTxt"></span></div>
       <div class="defs">
         <div class="defs-cab"><b>Defectos<span class="num cero" id="fNdef">0</span></b><button class="mini" id="fAddDef"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Añadir defecto</button></div>
         <div id="fDefs"></div>
@@ -477,6 +516,36 @@
   </div>
 </div>
 
+<!-- Trabajos y equipo -->
+<div class="modal" id="mTrab" style="z-index:2100">
+  <div class="hoja" style="height:90vh">
+    <div class="hoja-cab" style="align-items:center">
+      <div><h2>Trabajos y equipo</h2></div>
+      <button class="x" id="trX" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="scroll">
+      <div class="seccion" style="margin-top:6px">Equipo</div>
+      <div id="eqSi" style="display:none">
+        <div class="eq-ok"><span>Conectado como <b id="eqNombre"></b></span><button class="mini tenue" id="eqCambiar" style="margin-left:auto;flex:none;min-width:0;padding:0 12px;height:34px">Cambiar</button></div>
+        <label class="interr"><input type="checkbox" id="eqPos"> Compartir mi posición con el equipo mientras la app está abierta</label>
+        <div class="fila-b" style="display:flex;gap:8px;margin-top:8px"><button class="mini" id="eqInvitar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>Invitar a un compañero</button></div>
+      </div>
+      <div id="eqNo" class="eq-form">
+        <p class="nota-eq">Para compartir trabajos hace falta el <b>sitio común</b> (una hoja de Google). Si un compañero te ha pasado un enlace de invitación, ábrelo y solo tendrás que poner tu nombre.</p>
+        <input class="campo" id="eqUrl" placeholder="Dirección del sitio común (https://script.google.com/…)" autocomplete="off">
+        <input class="campo" id="eqClave" placeholder="Clave del equipo" autocomplete="off">
+        <input class="campo" id="eqTuNombre" placeholder="Tu nombre (lo verá el equipo)" autocomplete="off">
+        <button class="btn btn-ok" id="eqConectar" style="width:100%">Conectar</button>
+        <p class="nota-eq"><a href="https://github.com/jdevgpt/kmzrev#trabajar-en-equipo" target="_blank" rel="noopener">Cómo crear el sitio común</a></p>
+      </div>
+      <div class="seccion">Trabajos del equipo</div>
+      <div id="trLista"><p class="nota-eq">Conecta con el equipo para ver los trabajos compartidos.</p></div>
+      <div class="seccion">Solo en este móvil</div>
+      <div id="trLocal"></div>
+    </div>
+  </div>
+</div>
+
 <!-- Nuevo / editar punto -->
 <div class="modal" id="mNuevo" style="z-index:2200">
   <div class="hoja">
@@ -537,6 +606,7 @@
     </div>
     <div class="scroll" style="margin-top:8px">
       <div class="caja-desc" id="mComoInstalar" style="display:none;margin:0 0 6px"><p style="margin:0"><b>Para instalarla:</b> en Chrome, menú ⋮ → <b>Instalar aplicación</b> (o "Añadir a pantalla de inicio"). En iPhone, Safari → Compartir → <b>Añadir a pantalla de inicio</b>.</p></div>
+      <button id="mTrabajos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16 14.6c3 .1 5 2 5 5"/></svg><span>Trabajos y equipo<small>Abrir los trabajos compartidos o trabajar en local</small></span></button>
       <button id="mInstalar" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M12 8v7M9 12l3 3 3-3"/></svg><span>Instalar en el móvil<small>Icono propio, pantalla completa y funciona sin cobertura</small></span></button>
       <button id="mCargar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 21h14"/></svg><span>Cargar KMZ / KML<small>Si ya había centros, se conserva el estado de los que coincidan</small></span></button>
       <button id="mExpKmz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6z"/></svg><span>Exportar KMZ<small>Con sus iconos y las posiciones corregidas; realizados con ✔</small></span></button>
@@ -579,9 +649,25 @@ let datos=VACIO();
 // estilos: {clave:{img,tintado,color,href,kmlColor,size,ax,ay,nombre}}
 // estado: {id:{hecho,fecha,nota,pos:[lat,lng]}}
 
+let modo='local'; // 'local' o el id de un trabajo del equipo
 function guardar(){
+  if(modo!=='local'){ guardarTrabajo(); programarSync(1500); return; }
   try{ localStorage.setItem(CLAVE,JSON.stringify(datos)); }
   catch(e){ aviso('No se pudo guardar en el dispositivo (¿memoria llena?)'); }
+}
+/* Almacén grande (IndexedDB) para los trabajos del equipo */
+const IDB={ _db:null,
+  abrir(){ return this._db||(this._db=new Promise((ok,ko)=>{ const q=indexedDB.open('kmzrev',1); q.onupgradeneeded=()=>q.result.createObjectStore('kv'); q.onsuccess=()=>ok(q.result); q.onerror=()=>ko(q.error); })); },
+  async get(k){ const db=await this.abrir(); return new Promise((ok,ko)=>{ const q=db.transaction('kv').objectStore('kv').get(k); q.onsuccess=()=>ok(q.result); q.onerror=()=>ko(q.error); }); },
+  async set(k,v){ const db=await this.abrir(); return new Promise((ok,ko)=>{ const t=db.transaction('kv','readwrite'); t.objectStore('kv').put(v,k); t.oncomplete=()=>ok(); t.onerror=()=>ko(t.error); }); },
+  async del(k){ const db=await this.abrir(); return new Promise((ok)=>{ const t=db.transaction('kv','readwrite'); t.objectStore('kv').delete(k); t.oncomplete=()=>ok(); t.onerror=()=>ok(); }); }
+};
+let _tGuardar=null;
+function guardarTrabajo(ya){
+  clearTimeout(_tGuardar);
+  const hacer=()=>{ const tid=modo; if(tid==='local') return Promise.resolve(); return IDB.set('t:'+tid,datos).catch(()=>aviso('No se pudo guardar en el dispositivo')); };
+  if(ya) return hacer();
+  _tGuardar=setTimeout(hacer,300);
 }
 function cargarLocal(){
   try{
@@ -848,7 +934,9 @@ function aplicarCarga(r){
 }
 $('fichero').addEventListener('change',async e=>{
   const f=e.target.files[0]; e.target.value=''; if(!f) return;
-  cerrar('mMenu'); $('cargando').classList.add('ver');
+  cerrar('mMenu');
+  if(modo!=='local'){ await cambiarALocal(); aviso('El KMZ se abre como trabajo local (solo en este móvil)'); }
+  $('cargando').classList.add('ver');
   try{ aplicarCarga(await leerArchivo(f)); }
   catch(err){ console.error(err); aviso(err.message||'No se pudo leer el archivo'); }
   finally{ $('cargando').classList.remove('ver'); }
@@ -893,15 +981,16 @@ function htmlIcono(e,claseExtra){
 function iconoDe(p){
   const e=datos.estilos[p.estilo], ok=hecho(p.id);
   const nd=(est(p.id).def||[]).length;
-  const nm='<span class="nm">'+esc(p.nombre)+'</span><i class="chk"></i>'+(nd?'<i class="ndef">'+nd+'</i>':'');
+  const rv=est(p.id).reserva, rsv=!!(rv && !ok);
+  const nm='<span class="nm">'+esc(p.nombre)+(rsv?'<span class="rv">→ '+esc(rv.por===cfgEq.nombre?'Tú':rv.por)+'</span>':'')+'</span><i class="chk"></i>'+(nd?'<i class="ndef">'+nd+'</i>':'');
   if(!e){
-    return L.divIcon({className:'kmk',iconSize:[18,18],iconAnchor:[9,9],html:'<div class="mk def'+(ok?' ok':'')+'">'+nm+'</div>'});
+    return L.divIcon({className:'kmk',iconSize:[18,18],iconAnchor:[9,9],html:'<div class="mk def'+(ok?' ok':'')+(rsv?' rsv':'')+'">'+nm+'</div>'});
   }
   const s=e.size;
   const cuerpo=e.tintado
     ? '<div class="tw"><img src="'+esc(e.img)+'" alt="" style="transform:translateX(-200px);filter:drop-shadow(200px 0 0 '+e.color+')"></div>'
     : '<img src="'+esc(e.img)+'" alt="">';
-  return L.divIcon({className:'kmk',iconSize:[s,s],iconAnchor:[Math.round(s*e.ax),Math.round(s*e.ay)],html:'<div class="mk'+(ok?' ok':'')+'">'+cuerpo+nm+'</div>'});
+  return L.divIcon({className:'kmk',iconSize:[s,s],iconAnchor:[Math.round(s*e.ax),Math.round(s*e.ay)],html:'<div class="mk'+(ok?' ok':'')+(rsv?' rsv':'')+'">'+cuerpo+nm+'</div>'});
 }
 function visible(p){
   if(p.estilo && ocultos.has(p.estilo)) return false;
@@ -1072,11 +1161,12 @@ $('cNombres').onclick=()=>{
 };
 $('cTodo').onclick=encuadrarTodo;
 
+let yoAcc=0, yoT=0;
 let yo=null, marcaYo=null, siguiendo=null, centrarAlLlegar=false;
 function seguirUbicacion(){
   if(siguiendo!=null || !navigator.geolocation) return;
   siguiendo=navigator.geolocation.watchPosition(pos=>{
-    yo=[pos.coords.latitude,pos.coords.longitude];
+    yo=[pos.coords.latitude,pos.coords.longitude]; yoAcc=pos.coords.accuracy||0; yoT=Date.now();
     if(!marcaYo) marcaYo=L.marker(yo,{icon:L.divIcon({className:'',html:'<div class="yo"></div>',iconSize:[16,16]}),interactive:false,zIndexOffset:1000}).addTo(mapa);
     else marcaYo.setLatLng(yo);
     $('cYo').classList.add('activo');
@@ -1276,7 +1366,8 @@ function pintarFicha(){
   $('fTipo').innerHTML='<span class="ic">'+htmlIcono(ti)+'</span>'+esc(ti?ti.nombre:'Sin tipo')+'<button type="button" class="cambiar">Cambiar tipo</button>';
   $('fEstado').classList.toggle('hecho',h);
   $('fEstadoTxt').textContent=h?'Realizado':'Pendiente';
-  $('fEstadoSub').textContent=h?'Toca para volver a pendiente':'Toca para marcar como realizado';
+  $('fEstadoSub').textContent=h?((e.por?'Por '+e.por+(e.cuando?' · '+haceTxt(Date.parse(e.cuando)):'')+' · ':'')+'toca para volver a pendiente'):'Toca para marcar como realizado';
+  pintarReserva(e);
   $('fReubicado').textContent=movido(p)?'Reubicado':'';
   pintarDefsFicha();
   $('fOrigCont').style.display=(movido(p)&&!p.nuevo)?'':'none';
@@ -1305,10 +1396,10 @@ $('fEstado').onclick=()=>{
   const ahora=!hecho(actual);
   if(ahora && !$('fFecha').value) $('fFecha').value=hoyISO();
   if(!ahora) $('fFecha').value='';
-  setEstado({hecho:ahora,fecha:$('fFecha').value});
+  setEstado(ahora?{hecho:true,fecha:$('fFecha').value,por:cfgEq.nombre||null,cuando:new Date().toISOString(),reserva:null}:{hecho:false,fecha:'',por:null,cuando:null});
   if(navigator.vibrate) navigator.vibrate(30);
 };
-$('fFecha').addEventListener('input',()=>{ const f=$('fFecha').value; setEstado(f?{fecha:f,hecho:true}:{fecha:''}); });
+$('fFecha').addEventListener('input',()=>{ const f=$('fFecha').value; setEstado(f?Object.assign({fecha:f,hecho:true,reserva:null},hecho(actual)?{}:{por:cfgEq.nombre||null,cuando:new Date().toISOString()}):{fecha:''}); });
 $('fNota').addEventListener('input',()=>{ clearTimeout($('fNota')._t); $('fNota')._t=setTimeout(()=>setEstado({nota:$('fNota').value.trim()}),400); });
 function cerrarFicha(){
   if(actual){ clearTimeout($('fNota')._t); setEstado({nota:$('fNota').value.trim()}); }
@@ -1436,6 +1527,7 @@ $('fEliminar').onclick=()=>{
   const p=puntoActual(); if(!p) return;
   confirmar('Eliminar punto','¿Eliminar "'+p.nombre+'"? No se puede deshacer.',()=>{
     datos.puntos=datos.puntos.filter(x=>x.id!==p.id); delete datos.estado[p.id];
+    if(datos.sync && !datos.sync.borrados.includes(p.id)) datos.sync.borrados.push(p.id);
     if(marcadores[p.id]) grupoPuntos.removeLayer(marcadores[p.id]); delete marcadores[p.id];
     actual=null; cerrar('mFicha'); guardar(); actualizarProgreso(); pintarControles(); aviso('Punto eliminado');
   },'Eliminar');
@@ -1517,7 +1609,7 @@ $('dBusca').addEventListener('input',()=>{ defAbierto=null; pintarListaDef(); })
 $('dLista').addEventListener('click',e=>{
   if(e.target.id==='dAnadir'){
     const p=puntoActual(), [g,c]=defAbierto.split('|'), ds=(est(p.id).def||[]).slice();
-    ds.push({g,c,o:($('dObs').value||'').trim(),f:hoyISO()});
+    ds.push(Object.assign({g,c,o:($('dObs').value||'').trim(),f:hoyISO()},cfgEq.nombre&&modo!=='local'?{por:cfgEq.nombre}:{}));
     setEstado({def:ds, inst:est(p.id).inst||g});
     try{ localStorage.setItem('kmzrev:guia',g); }catch(err){}
     defAbierto=null; cerrar('mDef'); aviso('Defecto '+c+' añadido');
@@ -1544,7 +1636,7 @@ function pintarLista(){
     if(!yo && p.carpeta!==grupo){ grupo=p.carpeta; if(grupo) html+='<div class="grupo">'+esc(grupo)+'</div>'; }
     const e=est(p.id);
     const nd=(e.def||[]).length;
-    const det=(e.hecho?('Realizado'+(e.fecha?' el '+fechaES(e.fecha):'')):'Pendiente')+(nd?' · '+nd+' defecto'+(nd>1?'s':'')+' ('+e.def.map(d=>d.c).join(', ')+')':'')+(p.nuevo?' · nuevo':(e.pos?' · reubicado':''));
+    const det=(e.hecho?('Realizado'+(e.fecha?' el '+fechaES(e.fecha):'')+(e.por?' por '+e.por:'')):(e.reserva?'Reservado por '+(e.reserva.por===cfgEq.nombre?'ti':e.reserva.por):'Pendiente'))+(nd?' · '+nd+' defecto'+(nd>1?'s':'')+' ('+e.def.map(d=>d.c).join(', ')+')':'')+(p.nuevo?' · nuevo':(e.pos?' · reubicado':''));
     html+='<div class="item" data-id="'+esc(p.id)+'"><span class="ic'+(e.hecho?' ok':'')+'">'+htmlIcono(datos.estilos[p.estilo])+'</span><div><div class="nom">'+esc(p.nombre)+'</div><div class="det">'+esc(det)+(e.nota?' · '+esc(e.nota.slice(0,40)):'')+'</div></div>'+(p.d!=null?'<span class="dist">'+fmtDist(p.d)+'</span>':'')+'</div>';
   });
   if(lista.length>max) html+='<div class="grupo" style="text-align:center">… y '+(lista.length-max)+' más. Usa el buscador.</div>';
@@ -1683,17 +1775,17 @@ $('mExpCsv').onclick=async()=>{
   const puntos=[], defs=[], resumen={};
   datos.puntos.forEach(p=>{
     const e=est(p.id), pos=posDe(p), t=datos.estilos[p.estilo], ds=e.def||[];
-    puntos.push([p.nombre,p.carpeta,t?t.nombre:'',e.inst?GUIAS[e.inst].n:'',e.hecho?'Realizado':'Pendiente',e.fecha||'',ds.length,ds.map(d=>d.c).join(', '),e.nota||'',+pos[0].toFixed(7),+pos[1].toFixed(7),p.nuevo?'Nuevo':(e.pos?'Reubicado':''),maps(pos)]);
+    puntos.push([p.nombre,p.carpeta,t?t.nombre:'',e.inst?GUIAS[e.inst].n:'',e.hecho?'Realizado':'Pendiente',e.fecha||'',e.por||'',(!e.hecho&&e.reserva)?e.reserva.por:'',ds.length,ds.map(d=>d.c).join(', '),e.nota||'',+pos[0].toFixed(7),+pos[1].toFixed(7),p.nuevo?'Nuevo':(e.pos?'Reubicado':''),maps(pos)]);
     ds.forEach(d=>{
       const inf=defInfo(d.g,d.c)||{};
-      defs.push([p.nombre,p.carpeta,GUIAS[d.g]?GUIAS[d.g].n:d.g,d.c,inf.g||'',inf.d||'',d.o||'',d.f||'',e.hecho?'Realizado':'Pendiente',+pos[0].toFixed(7),+pos[1].toFixed(7),maps(pos)]);
+      defs.push([p.nombre,p.carpeta,GUIAS[d.g]?GUIAS[d.g].n:d.g,d.c,inf.g||'',inf.d||'',d.o||'',d.f||'',d.por||'',e.hecho?'Realizado':'Pendiente',+pos[0].toFixed(7),+pos[1].toFixed(7),maps(pos)]);
       const k=d.g+'|'+d.c; (resumen[k]=resumen[k]||{g:d.g,c:d.c,inf,n:0}).n++;
     });
   });
   const res=Object.values(resumen).sort((a,b)=>b.n-a.n||a.c.localeCompare(b.c)).map(r=>[r.c,GUIAS[r.g]?GUIAS[r.g].n:r.g,r.inf.g||'',r.inf.d||'',r.n]);
   const blob=await crearXLSX([
-    {nombre:'Puntos',cols:[{t:'Punto',w:18},{t:'Carpeta',w:22},{t:'Tipo',w:18},{t:'Instalación',w:14},{t:'Estado',w:11},{t:'Fecha realización',w:13,tipo:'fecha'},{t:'Nº defectos',w:10,tipo:'num'},{t:'Códigos',w:18},{t:'Observaciones',w:36,tipo:'largo'},{t:'Latitud',w:12,tipo:'coord'},{t:'Longitud',w:12,tipo:'coord'},{t:'Reubicado / Nuevo',w:12},{t:'Mapa',w:13,tipo:'enlace'}],filas:puntos},
-    {nombre:'Defectos',cols:[{t:'Punto',w:18},{t:'Carpeta',w:22},{t:'Instalación',w:14},{t:'Código',w:9},{t:'Grupo',w:18},{t:'Descripción',w:50,tipo:'largo'},{t:'Observación',w:36,tipo:'largo'},{t:'Fecha',w:12,tipo:'fecha'},{t:'Estado punto',w:12},{t:'Latitud',w:12,tipo:'coord'},{t:'Longitud',w:12,tipo:'coord'},{t:'Mapa',w:13,tipo:'enlace'}],filas:defs},
+    {nombre:'Puntos',cols:[{t:'Punto',w:18},{t:'Carpeta',w:22},{t:'Tipo',w:18},{t:'Instalación',w:14},{t:'Estado',w:11},{t:'Fecha realización',w:13,tipo:'fecha'},{t:'Realizado por',w:14},{t:'Reservado por',w:14},{t:'Nº defectos',w:10,tipo:'num'},{t:'Códigos',w:18},{t:'Observaciones',w:36,tipo:'largo'},{t:'Latitud',w:12,tipo:'coord'},{t:'Longitud',w:12,tipo:'coord'},{t:'Reubicado / Nuevo',w:12},{t:'Mapa',w:13,tipo:'enlace'}],filas:puntos},
+    {nombre:'Defectos',cols:[{t:'Punto',w:18},{t:'Carpeta',w:22},{t:'Instalación',w:14},{t:'Código',w:9},{t:'Grupo',w:18},{t:'Descripción',w:50,tipo:'largo'},{t:'Observación',w:36,tipo:'largo'},{t:'Fecha',w:12,tipo:'fecha'},{t:'Anotado por',w:14},{t:'Estado punto',w:12},{t:'Latitud',w:12,tipo:'coord'},{t:'Longitud',w:12,tipo:'coord'},{t:'Mapa',w:13,tipo:'enlace'}],filas:defs},
     {nombre:'Resumen',cols:[{t:'Código',w:9},{t:'Instalación',w:14},{t:'Grupo',w:18},{t:'Descripción',w:60,tipo:'largo'},{t:'Cantidad',w:10,tipo:'num'}],filas:res}
   ]);
   descargar(baseNombre().replace(/_revisado.*$/,'')+'_'+hoyISO()+'.xlsx',blob); cerrar('mMenu');
@@ -1708,6 +1800,7 @@ $('ficheroJson').addEventListener('change',async e=>{
   const f=e.target.files[0]; e.target.value=''; if(!f) return;
   try{
     const d=JSON.parse(await f.text()); if(!d||!Array.isArray(d.puntos)) throw 0;
+    if(modo!=='local') await cambiarALocal();
     datos={archivo:d.archivo||f.name,cargado:d.cargado||'',puntos:d.puntos,lineas:d.lineas||[],estilos:d.estilos||{},estado:d.estado||{}};
     ocultos=new Set(); guardarOcultos();
     guardar(); cerrar('mMenu'); dibujarTodo(true); aviso('Copia restaurada');
@@ -1723,6 +1816,7 @@ $('mReset').onclick=()=>{
   });
 };
 $('mBorrar').onclick=()=>{
+  if(modo!=='local'){ cerrar('mMenu'); cambiarALocal().then(()=>aviso('Trabajo cerrado. Sigue guardado en el equipo')); return; }
   confirmar('Quitar el KMZ','Se borrarán los centros y su estado de este dispositivo. Si quieres conservarlos, haz antes una copia de seguridad.',()=>{
     datos=VACIO(); guardar(); cerrar('mMenu'); dibujarTodo(false);
   });
@@ -1755,8 +1849,296 @@ async function mostrarAlmacen(){
 function estadoRed(){ document.body.classList.toggle('sin-red',!navigator.onLine); }
 window.addEventListener('online',estadoRed); window.addEventListener('offline',estadoRed); estadoRed();
 
+/* ================= Trabajo en equipo ================= */
+let cfgEq={url:'',clave:'',nombre:'',pos:false};
+try{ cfgEq=Object.assign(cfgEq,JSON.parse(localStorage.getItem('kmzrev:equipo')||'{}')); }catch(e){}
+const eqListo=()=>!!(cfgEq.url&&cfgEq.clave&&cfgEq.nombre);
+function guardarCfg(){ try{ localStorage.setItem('kmzrev:equipo',JSON.stringify(cfgEq)); }catch(e){} }
+function haceTxt(ms){ if(!ms) return ''; const s=(Date.now()-ms)/1000; if(s<60) return 'ahora'; if(s<3600) return 'hace '+Math.round(s/60)+' min'; if(s<86400) return 'hace '+Math.round(s/3600)+' h'; return 'hace '+Math.round(s/86400)+' d'; }
+function estable(o){ if(Array.isArray(o)) return '['+o.map(estable).join(',')+']'; if(o&&typeof o==='object') return '{'+Object.keys(o).filter(k=>o[k]!==undefined).sort().map(k=>JSON.stringify(k)+':'+estable(o[k])).join(',')+'}'; return JSON.stringify(o); }
+const hashOf=o=>hash(estable(o));
+const H_VACIO=hashOf({}), H_BORRADO=hashOf({borrado:true});
+
+async function llamar(q,ms){
+  if(!cfgEq.url) throw new Error('No hay sitio común configurado');
+  const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),ms||30000);
+  try{
+    const r=await fetch(cfgEq.url,{method:'POST',body:JSON.stringify(Object.assign({clave:cfgEq.clave},q)),headers:{'Content-Type':'text/plain;charset=utf-8'},redirect:'follow',signal:ctl.signal});
+    const t2=await r.text(); let j; try{ j=JSON.parse(t2); }catch(e){ throw new Error('El sitio común no responde bien. ¿Está bien copiada la dirección?'); }
+    if(!j.ok) throw new Error(j.error||'Error del sitio común');
+    return j;
+  }catch(e){ if(e.name==='AbortError') throw new Error('El sitio común tarda demasiado en responder'); throw e; }
+  finally{ clearTimeout(t); }
+}
+
+// Lo que se comparte de cada punto
+function payloadPunto(p,sinEstado){
+  const o={}, e=datos.estado[p.id];
+  if(!sinEstado && e && Object.keys(e).length) o.e=e;
+  if(p.nuevo) o.punto={id:p.id,nombre:p.nombre,lat:p.lat,lng:p.lng,carpeta:p.carpeta||'',info:[],nuevo:true};
+  if((p.estilo||'')!==(p.estiloBase||'')) o.estilo=p.estilo||'';
+  if(Object.keys(o).length) o.nombre=p.nombre;
+  return o;
+}
+function payloadEstilo(e){ let o=Object.assign({},e); if(JSON.stringify(o).length>44000) delete o.orig; return o; }
+function recogerCambios(){
+  const s=datos.sync, cambios=[], estilos=[];
+  datos.puntos.forEach(p=>{ const pl=payloadPunto(p), h=hashOf(pl); if(h!==(s.h[p.id]||H_VACIO)) cambios.push({id:p.id,p:pl,h}); });
+  s.borrados.forEach(id=>{ if(s.h[id]!==H_BORRADO) cambios.push({id,p:{borrado:true},h:H_BORRADO}); });
+  Object.keys(datos.estilos).forEach(k=>{ const pl=payloadEstilo(datos.estilos[k]), h=hashOf(pl); if(h!==s.hs[k]) estilos.push({k,e:pl,h}); });
+  Object.keys(s.hs).forEach(k=>{ if(!datos.estilos[k] && s.hs[k]!==H_BORRADO) estilos.push({k,e:{borrado:true},h:H_BORRADO}); });
+  return {cambios,estilos};
+}
+// Aplicar lo que llega del equipo
+function aplicarRemoto(puntos,estilos){
+  const s=datos.sync; let estructura=false; const tocados=[];
+  (estilos||[]).forEach(r=>{
+    const actualH=datos.estilos[r.k]?hashOf(payloadEstilo(datos.estilos[r.k])):(s.hs[r.k]?H_BORRADO:undefined);
+    if(s.hs[r.k]!==undefined && actualH!==s.hs[r.k]) return; // cambio local sin enviar: manda el nuestro
+    if(r.e.borrado){ delete datos.estilos[r.k]; s.hs[r.k]=H_BORRADO; }
+    else { datos.estilos[r.k]=r.e; s.hs[r.k]=hashOf(payloadEstilo(r.e)); }
+    estructura=true;
+  });
+  (puntos||[]).forEach(r=>{
+    const id=r.id, pl=r.p||{}; let p=datos.puntos.find(x=>x.id===id);
+    const actualH=p?hashOf(payloadPunto(p)):(s.borrados.includes(id)?H_BORRADO:H_VACIO);
+    if(actualH!==(s.h[id]||H_VACIO)) return; // cambio local sin enviar
+    if(pl.borrado){
+      if(p){ datos.puntos=datos.puntos.filter(x=>x.id!==id); delete datos.estado[id]; estructura=true; if(actual===id) cerrar('mFicha'); }
+      if(!s.borrados.includes(id)) s.borrados.push(id);
+      s.h[id]=H_BORRADO; return;
+    }
+    if(!p && pl.punto){ p=Object.assign({},pl.punto,{estiloBase:''}); datos.puntos.push(p); estructura=true; }
+    if(!p) return;
+    if(pl.punto){ p.nombre=pl.punto.nombre; p.lat=pl.punto.lat; p.lng=pl.punto.lng; p.carpeta=pl.punto.carpeta||''; }
+    const est0=p.estilo; p.estilo=pl.estilo!==undefined?(pl.estilo||undefined):(p.estiloBase||undefined); if(!p.estilo) delete p.estilo;
+    if(pl.e) datos.estado[id]=pl.e; else delete datos.estado[id];
+    s.h[id]=hashOf(payloadPunto(p)); tocados.push(id);
+  });
+  if(estructura||tocados.length>40) dibujarTodo(false); else tocados.forEach(refrescarPunto);
+  if(actual && $('mFicha').classList.contains('abierto') && (tocados.includes(actual)||estructura)){
+    const e=est(actual);
+    if(document.activeElement!==$('fNota')) $('fNota').value=e.nota||'';
+    if(document.activeElement!==$('fFecha')) $('fFecha').value=e.fecha||'';
+    pintarFicha();
+  }
+  if($('mLista').classList.contains('abierto')) pintarLista();
+  return tocados.length+(estructura?1:0);
+}
+
+// Sincronización
+let sincronizando=false, _tSync=null, ultimoOk=0, errorSync='';
+function programarSync(ms){ if(modo==='local') return; clearTimeout(_tSync); _tSync=setTimeout(sincronizar,ms==null?1500:ms); pintarChip(); }
+async function sincronizar(){
+  clearTimeout(_tSync);
+  if(modo==='local'||!eqListo()) return;
+  if(sincronizando){ programarSync(2000); return; }
+  if(!navigator.onLine){ pintarChip(); programarSync(20000); return; }
+  sincronizando=true; pintarChip();
+  const tid=modo;
+  try{
+    let vueltas=0, recibidos=0;
+    do{
+      const {cambios,estilos}=recogerCambios();
+      const lote=cambios.slice(0,250);
+      const yoPos=(cfgEq.pos && yo && Date.now()-yoT<600000)?{lat:+yo[0].toFixed(6),lng:+yo[1].toFixed(6),acc:yoAcc}:null;
+      const r=await llamar({accion:'sync',trabajo:tid,desde:datos.sync.ultimo,nombre:cfgEq.nombre,yo:yoPos,cambios:lote.map(c=>({id:c.id,p:c.p})),estilos:estilos.map(c=>({k:c.k,e:c.e}))},45000);
+      if(modo!==tid) return;
+      lote.forEach(c=>{ datos.sync.h[c.id]=c.h; });
+      estilos.forEach(c=>{ datos.sync.hs[c.k]=c.h; });
+      recibidos+=aplicarRemoto(r.puntos.filter(x=>!lote.some(c=>c.id===x.id&&hashOf(x.p)===c.h)),r.estilos);
+      datos.sync.ultimo=Math.max(datos.sync.ultimo,r.ahora-2000);
+      pintarEquipo(r.equipo||[]);
+      if(cambios.length<=250) break;
+    }while(++vueltas<20);
+    ultimoOk=Date.now(); errorSync='';
+    guardarTrabajo(true);
+  }catch(e){ errorSync=e.message||'Error'; }
+  finally{ sincronizando=false; pintarChip(); programarSync(document.hidden?60000:20000); }
+}
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) programarSync(300); });
+window.addEventListener('online',()=>programarSync(300));
+function pintarChip(){
+  const c=$('trabChip'); if(!c) return;
+  if(modo==='local'||!datos.sync){ c.classList.remove('ver'); return; }
+  c.classList.add('ver');
+  $('chipNom').textContent=datos.sync.nombre||'Trabajo';
+  let pend=0; try{ const rc=recogerCambios(); pend=rc.cambios.length+rc.estilos.length; }catch(e){}
+  let cl='', t='';
+  if(sincronizando){ cl='sync'; t='guardando…'; }
+  else if(!navigator.onLine){ cl='off'; t=pend?'sin conexión · '+pend+' sin enviar':'sin conexión'; }
+  else if(errorSync){ cl='err'; t='error'; }
+  else if(pend){ cl='pend'; t=pend+' sin enviar'; }
+  else { t=ultimoOk?'al día':'…'; }
+  $('chipSt').className='punto-st '+cl; $('chipTxt').textContent=t;
+  c.title=errorSync||'';
+}
+setInterval(()=>{ if(modo!=='local') pintarChip(); },15000);
+$('trabChip').onclick=()=>{ if(errorSync) aviso(errorSync); abrirTrabajos(); };
+
+// Compañeros en el mapa
+const grupoEquipo=L.layerGroup().addTo(mapa);
+function pintarEquipo(lista){
+  grupoEquipo.clearLayers();
+  lista.forEach(c=>{
+    if(c.lat==null||c.lng==null||!isFinite(c.lat)) return;
+    const ini=String(c.nombre).trim().split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase();
+    L.marker([c.lat,c.lng],{icon:L.divIcon({className:'kmk',iconSize:[30,30],iconAnchor:[15,15],html:'<div class="comp">'+esc(ini)+'<span>'+esc(c.nombre)+' · '+haceTxt(c.t)+'</span></div>'}),zIndexOffset:900,interactive:false,keyboard:false}).addTo(grupoEquipo);
+  });
+}
+
+// "Voy yo"
+function pintarReserva(e){
+  const fila=$('fVoyFila');
+  if(modo==='local'||e.hecho){ fila.style.display='none'; return; }
+  fila.style.display='';
+  const rv=e.reserva, mia=rv&&rv.por===cfgEq.nombre;
+  const ic='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4.5" r="2"/><path d="M8 22l3-7 3 3v4M7 12l3-4 4 1 3 3M10 8l1 7"/></svg>';
+  if(!rv){ $('fVoy').innerHTML=ic+'Voy yo'; $('fVoyTxt').textContent='Avisa al equipo de que vas tú a este centro'; }
+  else if(mia){ $('fVoy').innerHTML='Quitar reserva'; $('fVoyTxt').textContent='Reservado por ti '+haceTxt(Date.parse(rv.en)); }
+  else { $('fVoy').innerHTML=ic+'Voy yo'; $('fVoyTxt').textContent='Reservado por '+rv.por+' '+haceTxt(Date.parse(rv.en)); }
+}
+$('fVoy').onclick=()=>{
+  const e=est(actual), rv=e.reserva;
+  if(rv && rv.por===cfgEq.nombre){ setEstado({reserva:null}); aviso('Reserva quitada'); return; }
+  const hacer=()=>{ setEstado({reserva:{por:cfgEq.nombre,en:new Date().toISOString()}}); aviso('Reservado: el equipo verá que vas tú'); };
+  if(rv) confirmar('Ya está reservado',rv.por+' dijo que iba a este centro '+haceTxt(Date.parse(rv.en))+'. ¿Lo reservas tú?',hacer,'Voy yo'); else hacer();
+};
+
+// Panel de trabajos
+async function abrirTrabajos(){ cerrar('mMenu'); pintarEquipoPanel(); pintarLocal(); abrir('mTrab'); if(eqListo()) listarTrabajosEq(); }
+$('mTrabajos').onclick=abrirTrabajos;
+$('trX').onclick=()=>cerrar('mTrab');
+function pintarEquipoPanel(){
+  const ok=eqListo() && !pintarEquipoPanel.editar;
+  $('eqSi').style.display=ok?'':'none'; $('eqNo').style.display=ok?'none':'';
+  $('eqNombre').textContent=cfgEq.nombre; $('eqPos').checked=!!cfgEq.pos;
+  $('eqUrl').value=cfgEq.url; $('eqClave').value=cfgEq.clave; $('eqTuNombre').value=cfgEq.nombre;
+}
+$('eqCambiar').onclick=()=>{ pintarEquipoPanel.editar=true; pintarEquipoPanel(); };
+$('eqPos').onchange=()=>{ cfgEq.pos=$('eqPos').checked; guardarCfg(); if(cfgEq.pos){ seguirUbicacion(); aviso('El equipo verá tu posición mientras tengas la app abierta'); } programarSync(500); };
+$('eqConectar').onclick=async()=>{
+  const url=$('eqUrl').value.trim(), clave=$('eqClave').value.trim(), nombre=$('eqTuNombre').value.trim();
+  if(!/^https:\/\//.test(url) && !/^http:\/\/localhost/.test(url)) return aviso('Pega la dirección del sitio común (empieza por https://)');
+  if(!clave) return aviso('Escribe la clave del equipo');
+  if(!nombre) return aviso('Escribe tu nombre');
+  const prev=Object.assign({},cfgEq);
+  cfgEq.url=url; cfgEq.clave=clave; cfgEq.nombre=nombre;
+  $('eqConectar').disabled=true; $('eqConectar').textContent='Conectando…';
+  try{ await llamar({accion:'probar'},20000); guardarCfg(); pintarEquipoPanel.editar=false; pintarEquipoPanel(); aviso('Conectado con el equipo'); listarTrabajosEq(); pintarLocal(); }
+  catch(e){ cfgEq=prev; aviso(e.message); }
+  finally{ $('eqConectar').disabled=false; $('eqConectar').textContent='Conectar'; }
+};
+$('eqInvitar').onclick=async()=>{
+  const enlace=location.origin+location.pathname+'#equipo='+encodeURIComponent(cfgEq.url)+'&clave='+encodeURIComponent(cfgEq.clave);
+  const texto='Te invito al equipo de KMZrev. Abre este enlace en Chrome, pon tu nombre y ya verás nuestros trabajos:\n'+enlace;
+  try{ if(navigator.share){ await navigator.share({title:'KMZrev · invitación',text:texto}); return; } }catch(e){ if(e.name==='AbortError') return; }
+  try{ await navigator.clipboard.writeText(enlace); aviso('Enlace copiado. Pásaselo a tu compañero (lleva la clave, no lo publiques)'); }
+  catch(e){ confirmar('Enlace de invitación',enlace,()=>{},'Vale'); }
+};
+let trabajosEq=[];
+async function listarTrabajosEq(){
+  $('trLista').innerHTML='<p class="nota-eq">Cargando…</p>';
+  try{ const r=await llamar({accion:'trabajos'}); trabajosEq=r.trabajos||[]; }
+  catch(e){ $('trLista').innerHTML='<p class="nota-eq" style="color:var(--rojo)">'+esc(e.message)+'</p>'; return; }
+  pintarTrabajosEq();
+}
+function pintarTrabajosEq(){
+  if(!trabajosEq.length){ $('trLista').innerHTML='<p class="nota-eq">Todavía no hay trabajos compartidos. Abre un KMZ en local y súbelo al equipo desde aquí abajo.</p>'; return; }
+  $('trLista').innerHTML=trabajosEq.map(t=>'<div class="tr-it"><div class="tn"><b>'+esc(t.nombre)+'</b><small>'+esc(t.puntos+' puntos · subido por '+(t.por||'?'))+'</small></div>'+
+    (modo===t.id?'<span class="abierto">ABIERTO</span><button class="mini" data-cerrar="1">Cerrar</button>':'<button class="mini" data-abrir="'+esc(t.id)+'">Abrir</button>')+
+    '<button class="quitar-tr" data-quitar="'+esc(t.id)+'" aria-label="Quitar del equipo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></div>').join('');
+}
+function pintarLocal(){
+  let local=null; try{ local=JSON.parse(localStorage.getItem(CLAVE)||'null'); }catch(e){}
+  const n=local&&local.puntos?local.puntos.length:0;
+  $('trLocal').innerHTML='<div class="tr-it"><div class="tn"><b>'+esc(local&&local.archivo?local.archivo:'Trabajo local')+'</b><small>'+n+' puntos · solo en este móvil</small></div>'+
+    (modo==='local'?'<span class="abierto">ABIERTO</span>':'<button class="mini" id="trAbrirLocal">Abrir</button>')+'</div>'+
+    (modo==='local'&&n&&eqListo()?'<button class="btn btn-ok" id="trSubir" style="width:100%;margin-top:8px">Subir este trabajo al equipo</button><p class="nota-eq">Se sube el KMZ con todo lo marcado. Tus compañeros podrán abrirlo y veréis los cambios de todos.</p>':'');
+  if($('trAbrirLocal')) $('trAbrirLocal').onclick=async()=>{ await cambiarALocal(); cerrar('mTrab'); aviso('Trabajo local abierto'); };
+  if($('trSubir')) $('trSubir').onclick=subirTrabajo;
+}
+$('trLista').addEventListener('click',async e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.abrir){ b.disabled=true; b.textContent='Abriendo…'; try{ await abrirTrabajo(b.dataset.abrir); cerrar('mTrab'); }catch(err){ aviso(err.message); } finally{ b.disabled=false; } return; }
+  if(b.dataset.cerrar){ await cambiarALocal(); pintarTrabajosEq(); pintarLocal(); aviso('Trabajo cerrado. Sigue guardado en el equipo'); return; }
+  if(b.dataset.quitar){
+    const t=trabajosEq.find(x=>x.id===b.dataset.quitar);
+    confirmar('Quitar del equipo','Se borrará "'+t.nombre+'" y todo lo marcado en él para TODO el equipo. ¿Seguro? (Antes puedes exportar el Excel o el KMZ)',async()=>{
+      try{ await llamar({accion:'quitar',trabajo:t.id}); await IDB.del('t:'+t.id); if(modo===t.id) await cambiarALocal(); aviso('Trabajo quitado del equipo'); listarTrabajosEq(); pintarLocal(); }
+      catch(err){ aviso(err.message); }
+    },'Quitar');
+  }
+});
+async function subirTrabajo(){
+  const nombre=(prompt('Nombre del trabajo para el equipo:',(datos.archivo||'Trabajo').replace(/\.(kmz|kml)$/i,''))||'').trim();
+  if(!nombre) return;
+  const b=$('trSubir'); b.disabled=true; b.textContent='Subiendo…';
+  try{
+    const base={archivo:datos.archivo,puntos:datos.puntos.map(p=>{ const o=Object.assign({},p); delete o.estPrev; delete o.estiloBase; return o; }),lineas:datos.lineas,estilos:datos.estilos};
+    const r=await llamar({accion:'subir',nombre,por:cfgEq.nombre,base},120000);
+    const d=JSON.parse(JSON.stringify(datos));
+    d.puntos.forEach(p=>{ p.estiloBase=p.estilo||''; });
+    d.sync={tid:r.id,nombre,ultimo:0,h:{},hs:{},borrados:[]};
+    datos=d; modo=r.id; // la base no lleva estado: se envía en la primera sincronización
+    datos.puntos.forEach(p=>{ datos.sync.h[p.id]=hashOf(payloadPunto(p,true)); });
+    Object.keys(datos.estilos).forEach(k=>{ datos.sync.hs[k]=hashOf(payloadEstilo(datos.estilos[k])); });
+    await guardarTrabajo(true);
+    try{ localStorage.setItem('kmzrev:actual',modo); }catch(e){}
+    dibujarTodo(false); cerrar('mTrab'); aviso('Trabajo subido. Ya pueden abrirlo tus compañeros');
+    await sincronizar();
+  }catch(e){ aviso(e.message); }
+  finally{ if($('trSubir')){ $('trSubir').disabled=false; $('trSubir').textContent='Subir este trabajo al equipo'; } }
+}
+async function abrirTrabajo(tid){
+  if(modo!=='local') await guardarTrabajo(true);
+  let d=await IDB.get('t:'+tid).catch(()=>null);
+  if(!d){
+    $('cargando').textContent='Descargando trabajo…'; $('cargando').classList.add('ver');
+    try{
+      const r=await llamar({accion:'descargar',trabajo:tid,nombre:cfgEq.nombre},120000);
+      const b=r.base;
+      d={archivo:b.archivo||'',cargado:new Date().toISOString(),puntos:(b.puntos||[]).map(p=>Object.assign(p,{estiloBase:p.estilo||''})),lineas:b.lineas||[],estilos:b.estilos||{},estado:{},
+         sync:{tid,nombre:r.trabajo.nombre,ultimo:0,h:{},hs:{},borrados:[]}};
+      const prev=datos, prevModo=modo; datos=d; modo=tid;
+      d.puntos.forEach(p=>{ d.sync.h[p.id]=hashOf(payloadPunto(p,true)); });
+      Object.keys(d.estilos).forEach(k=>{ d.sync.hs[k]=hashOf(payloadEstilo(d.estilos[k])); });
+      aplicarRemoto(r.puntos,r.estilos);
+      d.sync.ultimo=r.ahora-2000;
+      datos=prev; modo=prevModo;
+    } finally { $('cargando').classList.remove('ver'); $('cargando').textContent='Leyendo archivo…'; }
+  }
+  datos=d; modo=tid; ocultos=new Set(); guardarOcultos();
+  try{ localStorage.setItem('kmzrev:actual',tid); }catch(e){}
+  await guardarTrabajo(true);
+  ultimoOk=0; errorSync=''; grupoEquipo.clearLayers();
+  dibujarTodo(true); pintarChip();
+  if(cfgEq.pos) seguirUbicacion();
+  aviso('Abierto: '+(d.sync.nombre||'trabajo'));
+  sincronizar();
+}
+async function cambiarALocal(){
+  if(modo!=='local'){ await guardarTrabajo(true); }
+  modo='local'; try{ localStorage.setItem('kmzrev:actual','local'); }catch(e){}
+  datos=VACIO(); cargarLocal(); grupoEquipo.clearLayers(); clearTimeout(_tSync);
+  dibujarTodo(true); pintarChip();
+}
+// Enlace de invitación (#equipo=...&clave=...)
+(function(){
+  const h=new URLSearchParams(location.hash.replace(/^#/,''));
+  if(h.get('equipo')){
+    cfgEq.url=h.get('equipo'); cfgEq.clave=h.get('clave')||''; guardarCfg();
+    history.replaceState(null,'',location.pathname+location.search);
+    setTimeout(()=>{ pintarEquipoPanel.editar=!cfgEq.nombre; abrirTrabajos(); aviso(cfgEq.nombre?'Invitación aplicada':'Escribe tu nombre y pulsa Conectar'); },400);
+  }
+})();
+
 /* ================= Inicio ================= */
 async function inicio(){
+  let act='local'; try{ act=localStorage.getItem('kmzrev:actual')||'local'; }catch(e){}
+  if(act!=='local'){
+    try{ const d=await IDB.get('t:'+act); if(d&&d.sync){ datos=d; modo=act; dibujarTodo(true); pintarChip(); if(cfgEq.pos) seguirUbicacion(); sincronizar(); return; } }catch(e){}
+  }
   if(cargarLocal() && datos.puntos.length){ dibujarTodo(true); return; }
   for(const n of ['centros.kmz','centros.kml']){
     try{

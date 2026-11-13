@@ -25,6 +25,29 @@ Con Ortofoto PNOA o Mapa IGN elegido, en "Mapas sin cobertura" puedes descargar 
 6. **Defectos**: en la ficha de cada punto, **Añadir defecto** abre la lista de la guía que toque — **Baja Tensión** (tabla BEL011), **Línea MT** (AED017), **PT intemperie** (FED030) o **CD edificio** (FED029) —, agrupada como en la guía y con buscador por código o texto (busca en las cuatro). Al tocar un defecto se ve el criterio de la guía y se puede añadir con una observación. Los puntos con defectos llevan un número rojo en el mapa, y en la Lista se pueden filtrar.
 7. **Cómo llegar** abre la ruta en Google Maps. El botón de ubicación muestra dónde estás y ordena la lista por cercanía.
 
+## Trabajar en equipo
+Varios compañeros pueden abrir los mismos trabajos (KMZ), marcar centros, anotar defectos, reservar con **"Voy yo"** y verse en el mapa. Todo se guarda en una **hoja de Google** vuestra (privada) y cada móvil se sincroniza solo cada pocos segundos; sin cobertura se sigue trabajando y los cambios se envían al volver la red.
+
+### Crear el sitio común (una sola vez, ~10 minutos)
+1. Entra en https://sheets.new con tu cuenta de Google y ponle nombre, por ejemplo **KMZrev equipo**.
+2. Menú **Extensiones → Apps Script**. Borra lo que haya y pega el contenido de [`equipo/Codigo.gs`](equipo/Codigo.gs).
+3. En la línea `const CLAVE = 'CAMBIA-ESTA-CLAVE';` pon una contraseña para tu equipo (sin espacios raros). Guarda (icono del disquete).
+4. **Implementar → Nueva implementación** → en el engranaje elige **Aplicación web**.
+   - Ejecutar como: **Yo**
+   - Quién tiene acceso: **Cualquier usuario**
+   Pulsa **Implementar**, autoriza el acceso con tu cuenta (Google avisa de que la app no está verificada: *Configuración avanzada → Ir a…*). Copia la **URL de la aplicación web**.
+5. En KMZrev: **Menú → Trabajos y equipo** → pega la URL, la clave y tu nombre → **Conectar**.
+
+### Subir los KMZ y compartirlos
+- Abre cada KMZ como siempre (Cargar KMZ) y en **Trabajos y equipo** pulsa **Subir este trabajo al equipo**. Repite con cada archivo.
+- **Invitar a un compañero** genera un enlace (lleva la clave: pásalo solo por privado). Al abrirlo, el compañero escribe su nombre y ya ve los trabajos.
+- En **Trabajos y equipo** cada uno abre y cierra el trabajo que quiera. Arriba a la izquierda del mapa se ve el trabajo abierto y si está **al día** o con cambios **sin enviar**.
+
+### En la hoja de Google
+Las pestañas **Estado** (un centro por fila: realizado, fecha, quién, reservas, defectos, observaciones), **Trabajos**, **Estilos** y **Equipo** se pueden consultar y filtrar. No modifiques las columnas *Datos (no tocar)* ni la pestaña *Archivos*.
+Si cambias el script, publícalo en **Implementar → Gestionar implementaciones → editar → Nueva versión** para que la URL siga siendo la misma.
+
+## Datos en el móvil
 El estado se guarda en el propio dispositivo. Desde el **Menú**:
 - **Exportar KMZ**: con los iconos originales, las posiciones corregidas y los realizados marcados con ✔, para Google Earth. Si vuelves a abrir ese KMZ en la app (en otro móvil, por ejemplo), recupera qué centros estaban hechos.
 - **Exportar Excel** (.xlsx): hoja *Puntos*, hoja *Defectos* (una fila por defecto) y *Resumen* por código, con filtros y enlace al mapa.
