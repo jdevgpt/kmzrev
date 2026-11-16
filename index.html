@@ -232,6 +232,11 @@
   .act-banner span{flex:1}
   .act-banner button{flex:none;height:38px;padding:0 14px;border-radius:10px;border:none;background:var(--naranja);color:#fff;font:700 .9rem "Barlow",system-ui,sans-serif;cursor:pointer}
   /* Filtro por línea */
+  .sel-linea{display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer;font-weight:600}
+  .sel-linea svg{width:20px;height:20px;color:var(--naranja);flex:none}
+  .sel-linea span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sel-linea b{color:var(--texto-sec);font-size:.8rem}
+  .sel-linea.activo{border-color:var(--naranja);background:var(--naranja-claro)}
   .linea-chip{position:absolute;left:10px;bottom:22px;z-index:940;display:none;align-items:center;gap:6px;max-width:calc(100% - 96px);background:var(--texto);color:#fff;
     border:none;border-radius:20px;padding:7px 8px 7px 12px;font:700 .82rem -apple-system,"Segoe UI",Roboto,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer}
   .linea-chip.ver{display:flex}
@@ -540,7 +545,7 @@
 </div>
 
 <!-- Filtrar por línea -->
-<div class="modal" id="mLinea">
+<div class="modal" id="mLinea" style="z-index:2150">
   <div class="hoja" style="height:85vh">
     <div class="hoja-cab" style="align-items:center">
       <div><h2>Filtrar por línea</h2><div class="sub" style="margin:0">Solo se verán en el mapa y en la lista los centros de la línea elegida</div></div>
@@ -615,7 +620,7 @@
     </div>
     <div class="busca"><input class="campo" id="lBusca" type="search" placeholder="Buscar centro…" autocomplete="off"></div>
     <label class="solo-def"><input type="checkbox" id="lSoloDef"> Solo puntos con defectos</label>
-    <div class="busca" id="lCarpetaCont" style="display:none"><select class="campo" id="lCarpeta"></select></div>
+    <div class="busca" id="lLineaCont" style="display:none"><button class="campo sel-linea" id="lLinea"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-6 7.5V19l-4 1.5v-8z"/></svg><span id="lLineaTxt">Todas las líneas</span><b>▾</b></button></div>
     <div class="scroll" id="lItems"></div>
   </div>
 </div>
@@ -1129,7 +1134,6 @@ const Ctl=L.Control.extend({options:{position:'topright'},onAdd(){
    '<button class="ctl-btn" id="cNombres" title="Mostrar u ocultar nombres">Aa</button>'+
    '<button class="ctl-btn" id="cTipos" title="Tipos de punto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.5" cy="6.5" r="3"/><path d="M14 4h7v7h-7z"/><path d="M6.5 14l3.5 6h-7z"/><circle cx="17.5" cy="17.5" r="3.5"/></svg></button>'+
    '<button class="ctl-btn" id="cYo" title="Mi ubicación"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>'+
-   '<button class="ctl-btn" id="cLinea" title="Filtrar por línea"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-6 7.5V19l-4 1.5v-8z"/></svg></button>'+
    '<button class="ctl-btn" id="cTodo" title="Ver todos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>';
   L.DomEvent.disableClickPropagation(c); return c; }});
 mapa.addControl(new Ctl());
@@ -1139,8 +1143,6 @@ function pintarControles(){
   const nTipos=new Set(datos.puntos.map(p=>p.estilo||'_def')).size;
   $('cTipos').style.display=(datos.puntos.length||Object.keys(datos.estilos).length)?'':'none';
   $('cTipos').classList.toggle('activo',ocultos.size>0);
-  $('cLinea').style.display=datos.puntos.some(p=>p.carpeta)?'':'none';
-  $('cLinea').classList.toggle('activo',!!lineaSel);
 }
 $('cCapa').onclick=()=>{ pintarCapas(); infoDescargas(); abrir('mCapas'); };
 $('kCerrar').onclick=()=>cerrar('mCapas');
@@ -1291,11 +1293,11 @@ function pintarLineaChip(){
   $('lineaChipTxt').textContent=n+' · '+h+'/'+base.length;
   c.classList.add('ver');
 }
-$('cLinea').onclick=()=>{ $('liBusca').value=''; pintarLineas(); abrir('mLinea'); setTimeout(()=>{ const on=$('liItems').querySelector('.on'); if(on&&on.scrollIntoView) on.scrollIntoView({block:'center'}); },50); };
+function abrirLineas(){ $('liBusca').value=''; pintarLineas(); abrir('mLinea'); setTimeout(()=>{ const on=$('liItems').querySelector('.on'); if(on&&on.scrollIntoView) on.scrollIntoView({block:'center'}); },50); }
 $('liX').onclick=()=>cerrar('mLinea');
 $('liBusca').addEventListener('input',pintarLineas);
 $('liItems').addEventListener('click',e=>{ const it=e.target.closest('.lin-it'); if(!it) return; cerrar('mLinea'); elegirLinea(it.dataset.k); aviso(it.dataset.k?'Mostrando solo: '+it.querySelector('.tn').firstChild.textContent:'Mostrando todas las líneas'); });
-$('lineaChip').onclick=e=>{ if(e.target.closest('#lineaChipX')){ elegirLinea(''); aviso('Mostrando todas las líneas'); return; } $('cLinea').click(); };
+$('lineaChip').onclick=e=>{ if(e.target.closest('#lineaChipX')){ elegirLinea(''); aviso('Mostrando todas las líneas'); return; } abrirLineas(); };
 
 let yoAcc=0, yoT=0;
 let yo=null, marcaYo=null, siguiendo=null, centrarAlLlegar=false;
@@ -1763,7 +1765,8 @@ $('dX').onclick=()=>cerrar('mDef');
 
 /* ================= Lista ================= */
 function pintarLista(){
-  const q=$('lBusca').value.trim().toLowerCase(), carp=$('lCarpeta').value;
+  const q=$('lBusca').value.trim().toLowerCase(), carp='';
+  pintarSelLinea();
   let lista=datos.puntos.filter(p=>visible(p) && (!carp||p.carpeta===carp) &&
     (!$('lSoloDef').checked || (est(p.id).def||[]).length) &&
     (!q || p.nombre.toLowerCase().includes(q) || p.carpeta.toLowerCase().includes(q) || (est(p.id).nota||'').toLowerCase().includes(q) || (est(p.id).def||[]).some(d=>d.c.toLowerCase().includes(q))));
@@ -1787,15 +1790,16 @@ $('lItems').addEventListener('click',e=>{
   cerrar('mLista'); mapa.setView(posDe(p),Math.max(mapa.getZoom(),17)); abrirFicha(p.id);
 });
 $('bLista').onclick=()=>{
-  const carpetas=[...new Set(datos.puntos.map(p=>p.carpeta))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'es'));
-  const sel=$('lCarpeta'), prev=sel.value;
-  sel.innerHTML='<option value="">Todas las carpetas</option>'+carpetas.map(c=>'<option>'+esc(c)+'</option>').join('');
-  sel.value=carpetas.includes(prev)?prev:'';
-  $('lCarpetaCont').style.display=carpetas.length>1?'':'none';
   pintarLista(); abrir('mLista');
 };
 $('lBusca').addEventListener('input',pintarLista);
-$('lCarpeta').addEventListener('change',pintarLista);
+function pintarSelLinea(){
+  $('lLineaCont').style.display=datos.puntos.some(p=>p.carpeta)?'':'none';
+  const base=datos.puntos.filter(enLinea), h=base.filter(p=>hecho(p.id)).length;
+  $('lLineaTxt').textContent=lineaSel?((lineaSel===SIN_CARPETA?'Sin carpeta':lineaSel.split(' › ').pop())+' · '+h+'/'+base.length):'Todas las líneas';
+  $('lLinea').classList.toggle('activo',!!lineaSel);
+}
+$('lLinea').onclick=abrirLineas;
 $('lSoloDef').addEventListener('change',pintarLista);
 $('lCerrar').onclick=()=>cerrar('mLista');
 
