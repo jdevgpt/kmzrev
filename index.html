@@ -226,6 +226,22 @@
   .seg.guias button{font-size:.8rem}
   .solo-def{display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:600;color:var(--texto-sec);margin:-2px 0 8px;cursor:pointer;flex:none}
   .solo-def input{width:20px;height:20px;accent-color:var(--rojo)}
+  /* Filtro por línea */
+  .linea-chip{position:absolute;left:10px;bottom:22px;z-index:940;display:none;align-items:center;gap:6px;max-width:calc(100% - 96px);background:var(--texto);color:#fff;
+    border:none;border-radius:20px;padding:7px 8px 7px 12px;font:700 .82rem -apple-system,"Segoe UI",Roboto,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer}
+  .linea-chip.ver{display:flex}
+  .linea-chip .tn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+  .linea-chip .xx{flex:none;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:14px;line-height:1}
+  body.mover .linea-chip{display:none}
+  .lin-it{display:flex;align-items:center;gap:10px;padding:11px 4px;border-top:1px solid var(--gris);cursor:pointer}
+  .lin-it:first-child{border-top:none}
+  .lin-it.on{background:var(--naranja-claro);border-radius:10px}
+  .lin-it .tn{flex:1;min-width:0;word-break:break-word;font-weight:600;font-size:.92rem}
+  .lin-it .tn small{display:block;font-weight:500;color:var(--texto-sec);font-size:.75rem}
+  .lin-it .cnt{flex:none;font-size:.78rem;font-weight:700;color:var(--texto-sec);white-space:nowrap}
+  .lin-it .cnt b{color:var(--verde)}
+  .lin-it .barrita{width:44px;height:6px;border-radius:4px;background:var(--gris);overflow:hidden;flex:none}
+  .lin-it .barrita i{display:block;height:100%;background:var(--verde)}
   /* Equipo */
   .trab-chip{position:absolute;left:54px;top:10px;z-index:940;max-width:calc(100% - 120px);display:none;align-items:center;gap:7px;background:#fff;
     border-radius:20px;padding:6px 12px 6px 9px;box-shadow:0 1px 5px rgba(0,0,0,.3);font:700 .8rem -apple-system,"Segoe UI",Roboto,sans-serif;cursor:pointer;border:none;color:var(--texto)}
@@ -334,6 +350,7 @@
 
 <div class="zona">
   <div id="mapa"></div>
+  <button class="linea-chip" id="lineaChip"><span class="tn" id="lineaChipTxt"></span><span class="xx" id="lineaChipX" aria-label="Quitar filtro">✕</span></button>
   <button class="trab-chip" id="trabChip"><span class="punto-st" id="chipSt"></span><span class="tn" id="chipNom"></span><span class="st" id="chipTxt"></span></button>
   <svg class="mira" viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="23" cy="23" r="9"/><path d="M23 2v12M23 32v12M2 23h12M32 23h12"/><circle cx="23" cy="23" r="1.6" fill="currentColor"/></svg>
   <div class="aviso-mover" id="avisoMover">
@@ -513,6 +530,18 @@
     <div class="busca"><input class="campo" id="dBusca" type="search" placeholder="Buscar por código o texto (p. ej. A11B, aislador…)" autocomplete="off"></div>
     <div class="sub" id="dGuiaNom" style="margin:-4px 0 4px;font-size:.75rem"></div>
     <div class="scroll dlist" id="dLista"></div>
+  </div>
+</div>
+
+<!-- Filtrar por línea -->
+<div class="modal" id="mLinea">
+  <div class="hoja" style="height:85vh">
+    <div class="hoja-cab" style="align-items:center">
+      <div><h2>Filtrar por línea</h2><div class="sub" style="margin:0">Solo se verán en el mapa y en la lista los centros de la línea elegida</div></div>
+      <button class="x" id="liX" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="busca" style="margin-top:10px"><input class="campo" id="liBusca" type="search" placeholder="Buscar línea…" autocomplete="off"></div>
+    <div class="scroll" id="liItems"></div>
   </div>
 </div>
 
@@ -815,7 +844,7 @@ function leerKML(texto){
     });
     const lc=st.lineColor?st.lineColor.css:'#7A828C', lw=st.lineWidth||2;
     ['LineString','LinearRing'].forEach(tag=>Array.from(pm.getElementsByTagNameNS('*',tag)).forEach(ls=>{
-      const c=coords(textoDe(ls,'coordinates')); if(c.length>1) lineas.push({nombre:nombre||'',color:lc,ancho:Math.min(Math.max(lw,1.5),6),c:c.map(x=>[+x[0].toFixed(6),+x[1].toFixed(6)])});
+      const c=coords(textoDe(ls,'coordinates')); if(c.length>1) lineas.push({nombre:nombre||'',carpeta,color:lc,ancho:Math.min(Math.max(lw,1.5),6),c:c.map(x=>[+x[0].toFixed(6),+x[1].toFixed(6)])});
     }));
   });
   return {puntos,lineas};
@@ -992,14 +1021,24 @@ function iconoDe(p){
     : '<img src="'+esc(e.img)+'" alt="">';
   return L.divIcon({className:'kmk',iconSize:[s,s],iconAnchor:[Math.round(s*e.ax),Math.round(s*e.ay)],html:'<div class="mk'+(ok?' ok':'')+(rsv?' rsv':'')+'">'+cuerpo+nm+'</div>'});
 }
+let lineaSel='';
+const SIN_CARPETA='\u0000sin';
+function enLinea(p){ if(!lineaSel) return true; const c=p.carpeta||''; if(lineaSel===SIN_CARPETA) return !c; return c===lineaSel || c.startsWith(lineaSel+' › '); }
+const claveLinea=()=>'kmzrev:linea:'+modo+':'+(datos.archivo||'');
+function cargarLinea(){
+  let v=''; try{ v=localStorage.getItem(claveLinea())||''; }catch(e){}
+  lineaSel=(v && datos.puntos.some(p=>{ const o=lineaSel; lineaSel=v; const ok=enLinea(p); lineaSel=o; return ok; }))?v:'';
+}
 function visible(p){
+  if(!enLinea(p)) return false;
   if(p.estilo && ocultos.has(p.estilo)) return false;
   if(!p.estilo && ocultos.has('_def')) return false;
   return filtro==='todos' || (filtro==='hecho')===hecho(p.id);
 }
 function dibujarTodo(encuadrar){
+  cargarLinea();
   grupoPuntos.clearLayers(); grupoLineas.clearLayers(); marcadores={};
-  datos.lineas.forEach(l=>L.polyline(l.c,{color:l.color||'#7A828C',weight:l.ancho||2,opacity:.75,renderer,interactive:false}).addTo(grupoLineas));
+  datos.lineas.filter(l=>!lineaSel||l.carpeta==null||enLinea(l)).forEach(l=>L.polyline(l.c,{color:l.color||'#7A828C',weight:l.ancho||2,opacity:.75,renderer,interactive:false}).addTo(grupoLineas));
   datos.puntos.forEach(p=>{
     const m=L.marker(posDe(p),{icon:iconoDe(p),keyboard:false,riseOnHover:true});
     m.on('click',()=>abrirFicha(p.id));
@@ -1008,7 +1047,7 @@ function dibujarTodo(encuadrar){
   });
   $('vacio').classList.toggle('ver',!datos.puntos.length && !sinKmz);
   if(encuadrar && datos.puntos.length) encuadrarTodo();
-  actualizarProgreso(); pintarControles();
+  actualizarProgreso(); pintarControles(); pintarLineaChip();
 }
 function encuadrarTodo(){
   const pts=datos.puntos.filter(visible).map(posDe);
@@ -1025,11 +1064,12 @@ function aplicarFiltro(){
     if(visible(p)){ if(!grupoPuntos.hasLayer(m)) m.addTo(grupoPuntos); } else grupoPuntos.removeLayer(m); });
 }
 function actualizarProgreso(){
-  const t=datos.puntos.length, h=datos.puntos.filter(p=>hecho(p.id)).length;
+  const base=datos.puntos.filter(enLinea), t=base.length, h=base.filter(p=>hecho(p.id)).length;
   $('progTxt').innerHTML='<b>'+h+'</b> / '+t+' realizados';
   $('progBar').style.width=(t?h/t*100:0)+'%';
   $('filtro').querySelector('[data-f=pend]').textContent='Pendientes ('+(t-h)+')';
   $('filtro').querySelector('[data-f=hecho]').textContent='Realizados ('+h+')';
+  if(typeof pintarLineaChip==='function' && $('lineaChip')) pintarLineaChip();
 }
 // Nombres: se ocultan con el mapa muy alejado para no saturar
 function zoomNombres(){ $('mapa').classList.toggle('lejos',mapa.getZoom()<13); }
@@ -1043,6 +1083,7 @@ const Ctl=L.Control.extend({options:{position:'topright'},onAdd(){
    '<button class="ctl-btn" id="cNombres" title="Mostrar u ocultar nombres">Aa</button>'+
    '<button class="ctl-btn" id="cTipos" title="Tipos de punto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.5" cy="6.5" r="3"/><path d="M14 4h7v7h-7z"/><path d="M6.5 14l3.5 6h-7z"/><circle cx="17.5" cy="17.5" r="3.5"/></svg></button>'+
    '<button class="ctl-btn" id="cYo" title="Mi ubicación"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>'+
+   '<button class="ctl-btn" id="cLinea" title="Filtrar por línea"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-6 7.5V19l-4 1.5v-8z"/></svg></button>'+
    '<button class="ctl-btn" id="cTodo" title="Ver todos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>';
   L.DomEvent.disableClickPropagation(c); return c; }});
 mapa.addControl(new Ctl());
@@ -1052,6 +1093,8 @@ function pintarControles(){
   const nTipos=new Set(datos.puntos.map(p=>p.estilo||'_def')).size;
   $('cTipos').style.display=(datos.puntos.length||Object.keys(datos.estilos).length)?'':'none';
   $('cTipos').classList.toggle('activo',ocultos.size>0);
+  $('cLinea').style.display=datos.puntos.some(p=>p.carpeta)?'':'none';
+  $('cLinea').classList.toggle('activo',!!lineaSel);
 }
 $('cCapa').onclick=()=>{ pintarCapas(); infoDescargas(); abrir('mCapas'); };
 $('kCerrar').onclick=()=>cerrar('mCapas');
@@ -1160,6 +1203,53 @@ $('cNombres').onclick=()=>{
   pintarControles(); aviso(nombresVisibles?'Nombres visibles (al acercar el mapa)':'Nombres ocultos');
 };
 $('cTodo').onclick=encuadrarTodo;
+
+/* ================= Filtro por línea ================= */
+function arbolLineas(){
+  const m={}; let sin=null;
+  datos.puntos.forEach(p=>{
+    const h=hecho(p.id), c=p.carpeta||'';
+    if(!c){ sin=sin||{t:0,h:0}; sin.t++; if(h) sin.h++; return; }
+    const partes=c.split(' › ');
+    for(let i=1;i<=partes.length;i++){ const k=partes.slice(0,i).join(' › '); const o=m[k]=m[k]||{k,n:partes[i-1],nivel:i-1,t:0,h:0}; o.t++; if(h) o.h++; }
+  });
+  let l=Object.values(m).sort((a,b)=>a.k.localeCompare(b.k,'es',{numeric:true}));
+  // Si todo cuelga de una única carpeta raíz, no hace falta mostrarla como opción
+  const raices=l.filter(x=>x.nivel===0);
+  if(raices.length===1 && !sin && l.length>1){ l=l.filter(x=>x!==raices[0]); l.forEach(x=>x.nivel--); }
+  if(sin) l.push({k:SIN_CARPETA,n:'Sin carpeta',nivel:0,t:sin.t,h:sin.h});
+  return l;
+}
+function pintarLineas(){
+  const q=$('liBusca').value.trim().toLowerCase(), tot=datos.puntos.length, th=datos.puntos.filter(p=>hecho(p.id)).length;
+  const fila=(k,n,sub,nivel,t,h)=>'<div class="lin-it'+(lineaSel===k?' on':'')+'" data-k="'+esc(k)+'" style="padding-left:'+(4+Math.max(0,nivel)*16)+'px"><div class="tn">'+esc(n)+(sub?'<small>'+esc(sub)+'</small>':'')+'</div>'+
+    '<span class="barrita"><i style="width:'+(t?h/t*100:0)+'%"></i></span><span class="cnt"><b>'+h+'</b>/'+t+'</span></div>';
+  let html=q?'':fila('','Todas las líneas','',0,tot,th);
+  arbolLineas().forEach(x=>{
+    if(q && !x.n.toLowerCase().includes(q) && !(x.k===SIN_CARPETA?'':x.k).toLowerCase().includes(q)) return;
+    const sub=q&&x.k!==SIN_CARPETA&&x.k.includes(' › ')?x.k.split(' › ').slice(0,-1).join(' › '):'';
+    html+=fila(x.k,x.n,sub,q?0:x.nivel,x.t,x.h);
+  });
+  $('liItems').innerHTML=html||'<div style="text-align:center;color:var(--texto-sec);padding:30px 10px">No hay líneas con ese nombre</div>';
+}
+function elegirLinea(k){
+  lineaSel=k; try{ if(k) localStorage.setItem(claveLinea(),k); else localStorage.removeItem(claveLinea()); }catch(e){}
+  dibujarTodo(false); encuadrarTodo();
+  if($('mLista').classList.contains('abierto')) pintarLista();
+}
+function pintarLineaChip(){
+  const c=$('lineaChip'); if(!c) return;
+  if(!lineaSel){ c.classList.remove('ver'); return; }
+  const n=lineaSel===SIN_CARPETA?'Sin carpeta':lineaSel.split(' › ').pop();
+  const base=datos.puntos.filter(enLinea), h=base.filter(p=>hecho(p.id)).length;
+  $('lineaChipTxt').textContent=n+' · '+h+'/'+base.length;
+  c.classList.add('ver');
+}
+$('cLinea').onclick=()=>{ $('liBusca').value=''; pintarLineas(); abrir('mLinea'); setTimeout(()=>{ const on=$('liItems').querySelector('.on'); if(on&&on.scrollIntoView) on.scrollIntoView({block:'center'}); },50); };
+$('liX').onclick=()=>cerrar('mLinea');
+$('liBusca').addEventListener('input',pintarLineas);
+$('liItems').addEventListener('click',e=>{ const it=e.target.closest('.lin-it'); if(!it) return; cerrar('mLinea'); elegirLinea(it.dataset.k); aviso(it.dataset.k?'Mostrando solo: '+it.querySelector('.tn').firstChild.textContent:'Mostrando todas las líneas'); });
+$('lineaChip').onclick=e=>{ if(e.target.closest('#lineaChipX')){ elegirLinea(''); aviso('Mostrando todas las líneas'); return; } $('cLinea').click(); };
 
 let yoAcc=0, yoT=0;
 let yo=null, marcaYo=null, siguiendo=null, centrarAlLlegar=false;
