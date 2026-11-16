@@ -226,6 +226,11 @@
   .seg.guias button{font-size:.8rem}
   .solo-def{display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:600;color:var(--texto-sec);margin:-2px 0 8px;cursor:pointer;flex:none}
   .solo-def input{width:20px;height:20px;accent-color:var(--rojo)}
+  .act-banner{position:absolute;left:10px;right:10px;top:56px;z-index:1200;display:none;align-items:center;gap:10px;background:var(--texto);color:#fff;
+    border-radius:14px;padding:10px 10px 10px 14px;box-shadow:0 6px 18px rgba(0,0,0,.3);font-size:.9rem;font-weight:600}
+  .act-banner.ver{display:flex}
+  .act-banner span{flex:1}
+  .act-banner button{flex:none;height:38px;padding:0 14px;border-radius:10px;border:none;background:var(--naranja);color:#fff;font:700 .9rem "Barlow",system-ui,sans-serif;cursor:pointer}
   /* Filtro por línea */
   .linea-chip{position:absolute;left:10px;bottom:22px;z-index:940;display:none;align-items:center;gap:6px;max-width:calc(100% - 96px);background:var(--texto);color:#fff;
     border:none;border-radius:20px;padding:7px 8px 7px 12px;font:700 .82rem -apple-system,"Segoe UI",Roboto,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer}
@@ -350,6 +355,7 @@
 
 <div class="zona">
   <div id="mapa"></div>
+  <div class="act-banner" id="actBanner"><span>Hay una versión nueva de la app</span><button id="actBtn">Actualizar</button></div>
   <button class="linea-chip" id="lineaChip"><span class="tn" id="lineaChipTxt"></span><span class="xx" id="lineaChipX" aria-label="Quitar filtro">✕</span></button>
   <button class="trab-chip" id="trabChip"><span class="punto-st" id="chipSt"></span><span class="tn" id="chipNom"></span><span class="st" id="chipTxt"></span></button>
   <svg class="mira" viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="23" cy="23" r="9"/><path d="M23 2v12M23 32v12M2 23h12M32 23h12"/><circle cx="23" cy="23" r="1.6" fill="currentColor"/></svg>
@@ -635,6 +641,7 @@
     </div>
     <div class="scroll" style="margin-top:8px">
       <div class="caja-desc" id="mComoInstalar" style="display:none;margin:0 0 6px"><p style="margin:0"><b>Para instalarla:</b> en Chrome, menú ⋮ → <b>Instalar aplicación</b> (o "Añadir a pantalla de inicio"). En iPhone, Safari → Compartir → <b>Añadir a pantalla de inicio</b>.</p></div>
+      <button id="mActualizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7L20 8.5M20 3.5v5h-5"/></svg><span>Recargar la app<small id="mVersion">Busca la última versión y recarga</small></span></button>
       <button id="mTrabajos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16 14.6c3 .1 5 2 5 5"/></svg><span>Trabajos y equipo<small>Abrir los trabajos compartidos o trabajar en local</small></span></button>
       <button id="mInstalar" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M12 8v7M9 12l3 3 3-3"/></svg><span>Instalar en el móvil<small>Icono propio, pantalla completa y funciona sin cobertura</small></span></button>
       <button id="mCargar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 21h14"/></svg><span>Cargar KMZ / KML<small>Si ya había centros, se conserva el estado de los que coincidan</small></span></button>
@@ -1797,7 +1804,8 @@ $('bMenu').onclick=()=>{
   $('menuArchivo').textContent=datos.archivo?('Archivo: '+datos.archivo+' · '+datos.puntos.length+' centros'):'Sin archivo cargado';
   $('mInstalar').style.display=eventoInstalar?'':'none';
   $('mComoInstalar').style.display=(!eventoInstalar && !instalada())?'':'none';
-  mostrarAlmacen();
+  mostrarAlmacen(); pedirVersion();
+  setTimeout(()=>{ $('mVersion').textContent='Busca la última versión y recarga'+(versionApp?' · versión instalada: '+versionApp:''); },150);
   abrir('mMenu');
 };
 $('menuCerrar').onclick=()=>cerrar('mMenu');
@@ -1962,9 +1970,31 @@ $('mInstalar').onclick=async()=>{
   if(!eventoInstalar) return; cerrar('mMenu');
   eventoInstalar.prompt(); try{ await eventoInstalar.userChoice; }catch(e){} eventoInstalar=null;
 };
+/* Actualizaciones: la app instalada no se recarga sola al volver a ella */
+let regSW=null, versionApp='';
+const habiaControlador=!!(navigator.serviceWorker && navigator.serviceWorker.controller);
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
-  navigator.serviceWorker.register('sw.js').catch(e=>console.warn('SW',e));
+  navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{ regSW=r; }).catch(e=>console.warn('SW',e));
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(habiaControlador) $('actBanner').classList.add('ver'); pedirVersion(); });
+  navigator.serviceWorker.addEventListener('message',e=>{ if(e.data&&e.data.version){ versionApp=e.data.version.replace('kmzrev-app-',''); } });
+  pedirVersion();
 }
+function pedirVersion(){ try{ navigator.serviceWorker.controller && navigator.serviceWorker.controller.postMessage('version'); }catch(e){} }
+let ultimaBusqueda=0;
+function buscarActualizacion(){
+  if(!regSW || !navigator.onLine || Date.now()-ultimaBusqueda<60000) return;
+  ultimaBusqueda=Date.now(); regSW.update().catch(()=>{});
+}
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) buscarActualizacion(); });
+setInterval(buscarActualizacion,30*60000);
+$('actBtn').onclick=()=>location.reload();
+$('mActualizar').onclick=async()=>{
+  if(!navigator.onLine){ aviso('Sin conexión: se recargará con la versión guardada'); }
+  $('mVersion').textContent='Buscando la última versión…';
+  try{ if(modo!=='local') await guardarTrabajo(true); }catch(e){}
+  try{ if(regSW) await Promise.race([regSW.update(),new Promise(r=>setTimeout(r,6000))]); }catch(e){}
+  location.reload();
+};
 function pedirPersistencia(){ try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){} }
 async function mostrarAlmacen(){
   let t='';

@@ -1,5 +1,5 @@
 /* KMZrev · funcionamiento sin conexión */
-const VERSION = 'kmzrev-app-v9';
+const VERSION = 'kmzrev-app-v10';
 const TESELAS = 'kmzrev-teselas';      // mapas descargados a propósito (no se borran solos)
 const VISTAS  = 'kmzrev-vistas';       // trozos de mapa ya vistos (se van renovando)
 const MAX_VISTAS = 4000;
@@ -19,12 +19,14 @@ const HOSTS_MAPA = /(^|\.)(tile\.openstreetmap\.org|ign\.es|arcgisonline\.com)$/
 self.addEventListener('install', e => {
   e.waitUntil((async () => {
     const c = await caches.open(VERSION);
-    await c.addAll(APP);
+    await c.addAll(APP.map(u => new Request(u, { cache: 'reload' }))); // sin la caché de GitHub
     // Las librerías externas se intentan guardar una a una: si alguna falla no bloquea la instalación
     await Promise.all(EXTERNOS.map(u => fetch(u, { mode: 'cors' }).then(r => r.ok && c.put(u, r)).catch(() => {})));
     self.skipWaiting();
   })());
 });
+
+self.addEventListener('message', e => { if (e.data === 'version') e.source && e.source.postMessage({ version: VERSION }); });
 
 self.addEventListener('activate', e => {
   e.waitUntil((async () => {
@@ -75,7 +77,8 @@ self.addEventListener('fetch', e => {
     e.respondWith((async () => {
       try {
         const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 5000);
-        const r = await fetch(req, { signal: ctl.signal }); clearTimeout(t);
+        // 'no-cache': pregunta siempre a GitHub si hay versión nueva (GitHub guarda las páginas 10 min)
+        const r = await fetch(req.mode === 'navigate' ? req.url : req.url, { signal: ctl.signal, cache: 'no-cache', credentials: 'same-origin' }); clearTimeout(t);
         if (r.ok && (req.mode === 'navigate' || APP.some(a => url.pathname.endsWith('/' + a.replace('./', ''))))) {
           const c = await caches.open(VERSION); c.put(req.mode === 'navigate' ? 'index.html' : req, r.clone());
         }
