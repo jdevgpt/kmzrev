@@ -701,7 +701,7 @@ function guardarTrabajo(ya){
 function cargarLocal(){
   try{
     const t=localStorage.getItem(CLAVE);
-    if(t){ const d=JSON.parse(t); if(d && Array.isArray(d.puntos)){ datos=Object.assign(VACIO(),d); return true; } }
+    if(t){ const d=JSON.parse(t); if(d && Array.isArray(d.puntos)){ datos=Object.assign(VACIO(),d); if(migrarTipos(datos)) guardar(); return true; } }
   }catch(e){}
   return false;
 }
@@ -909,18 +909,57 @@ async function procesarEstilos(puntos, recursos){
     else if(/paddle|pin|marker|503-|1899-/i.test(e.href)){ e.ax=.5; e.ay=1; }
     estilos[clave]=e;
   }));
-  // Nombre de cada tipo: la carpeta más habitual de sus puntos
-  const usados={};
-  claves.forEach((clave,i)=>{
-    const cuenta={}; conEstilo.filter(p=>p.estilo===clave).forEach(p=>{ const c=(p.carpeta||'').split(' › ').pop(); if(c) cuenta[c]=(cuenta[c]||0)+1; });
-    let nom=Object.keys(cuenta).sort((a,b)=>cuenta[b]-cuenta[a])[0]||('Tipo '+(i+1));
-    if(usados[nom]){ usados[nom]++; nom+=' ('+usados[nom]+')'; } else usados[nom]=1;
-    estilos[clave].nombre=nom;
-  });
+  claves.forEach(k=>{ estilos[k].formaKmz=formaDeHref(estilos[k].href); });
+  nombrarTipos(estilos,conEstilo,claves);
   puntos.forEach(p=>delete p.st);
   return estilos;
 }
 
+// Chincheta = PT (intemperie) · Marcador = CD (edificio)
+function formaDeHref(h){
+  h=String(h||'');
+  if(/pushpin|chincheta/i.test(h)) return 'chincheta';
+  if(/paddle|placemark(?!_circle)|marker|marcador|503-|1899-|[\/_-]pin[\/_.-]|pin\.png/i.test(h)) return 'marcador';
+  return '';
+}
+const TIPO_FORMA={chincheta:'PT',marcador:'CD'};
+function nombreColor(e){
+  const h=String(e.href||'').toLowerCase().split('/').pop();
+  const porNombre=[[/ltblu|lightblue/,'azul claro'],[/ylw|yellow/,'amarillo'],[/red|rojo/,'rojo'],[/grn|green/,'verde'],[/blu|blue/,'azul'],[/pink/,'rosa'],[/purple|purp/,'morado'],[/wht|white/,'blanco'],[/orange|orng/,'naranja'],[/blk|black/,'negro']];
+  for(const [re,n] of porNombre) if(re.test(h)) return n;
+  const c=(e.colorSel||e.color||'').replace('#',''); if(!/^[0-9a-f]{6}$/i.test(c)) return '';
+  const r=parseInt(c.substr(0,2),16)/255,g=parseInt(c.substr(2,2),16)/255,b=parseInt(c.substr(4,2),16)/255;
+  const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,d=mx-mn;
+  if(d<.12) return l>.85?'blanco':l<.2?'negro':'gris';
+  let hu=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4; hu=(hu*60+360)%360;
+  return hu<15||hu>=345?'rojo':hu<40?'naranja':hu<70?'amarillo':hu<165?'verde':hu<200?'azul claro':hu<255?'azul':hu<290?'morado':'rosa';
+}
+// Nombre automático de cada tipo: PT / CD si se reconoce el icono; si no, la carpeta más habitual
+function nombrarTipos(estilos,puntos,claves){
+  const porTipo={};
+  claves.forEach(k=>{ const t=TIPO_FORMA[estilos[k].formaKmz]; if(t) (porTipo[t]=porTipo[t]||[]).push(k); });
+  const usados={};
+  claves.forEach((k,i)=>{
+    const e=estilos[k], t=TIPO_FORMA[e.formaKmz];
+    let nom;
+    if(t){ const col=porTipo[t].length>1?nombreColor(e):''; nom=t+(col?' '+col:''); }
+    else {
+      const cuenta={}; puntos.filter(p=>p.estilo===k).forEach(p=>{ const c=(p.carpeta||'').split(' › ').pop(); if(c) cuenta[c]=(cuenta[c]||0)+1; });
+      nom=Object.keys(cuenta).sort((a,b)=>cuenta[b]-cuenta[a])[0]||('Tipo '+(i+1));
+    }
+    if(usados[nom]){ usados[nom]++; nom+=' ('+usados[nom]+')'; } else usados[nom]=1;
+    e.nombre=nom;
+  });
+}
+// Datos cargados con versiones anteriores: reconocer chinchetas (PT) y marcadores (CD)
+function migrarTipos(d){
+  const ks=Object.keys(d.estilos||{}); let cambio=false;
+  ks.forEach(k=>{ const e=d.estilos[k]; if(e.formaKmz===undefined){ e.formaKmz=formaDeHref(e.href); cambio=true; } });
+  if(!cambio) return false;
+  const auto=ks.filter(k=>!d.estilos[k].editado && (d.estilos[k].forma==='orig'||!d.estilos[k].forma));
+  if(auto.some(k=>TIPO_FORMA[d.estilos[k].formaKmz])) nombrarTipos(d.estilos,d.puntos||[],auto);
+  return true;
+}
 async function leerArchivo(file){
   const nombre=file.name;
   const buf=await file.arrayBuffer(); const u8=new Uint8Array(buf);
@@ -1302,9 +1341,9 @@ const insignia=(c,glifo)=>{ const g=claro(c)?'#262A2F':'#FFFFFF', borde=claro(c)
   return '<circle cx="32" cy="32" r="27" fill="none" '+SOMBRA+'/><circle cx="32" cy="32" r="27" fill="'+c+'" stroke="'+borde+'" stroke-width="3"/>'+
          '<g fill="none" stroke="'+g+'" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">'+glifo(g)+'</g>'; };
 const FORMAS={
-  marcador:{n:'Marcador',a:[.5,.97],svg:c=>{ const p='M32 61C32 61 9 37 9 24a23 23 0 0 1 46 0c0 13-23 37-23 37z';
+  marcador:{n:'Marcador (CD)',a:[.5,.97],svg:c=>{ const p='M32 61C32 61 9 37 9 24a23 23 0 0 1 46 0c0 13-23 37-23 37z';
     return '<path d="'+p+'" fill="none" '+SOMBRA+'/><path d="'+p+'" fill="'+c+'" stroke="'+(claro(c)?'#555':'#fff')+'" stroke-width="3"/><circle cx="32" cy="24" r="8" fill="'+(claro(c)?'#555':'#fff')+'"/>'; }},
-  chincheta:{n:'Chincheta',a:[.5,.97],svg:c=>'<path d="M32 33V61" stroke="#444" stroke-width="3.5" stroke-linecap="round"/><circle cx="32" cy="19" r="15" fill="none" '+SOMBRA+'/><circle cx="32" cy="19" r="15" fill="'+c+'" stroke="'+(claro(c)?'#555':'#fff')+'" stroke-width="3"/><circle cx="26.5" cy="13.5" r="4.5" fill="#fff" opacity=".55"/>'},
+  chincheta:{n:'Chincheta (PT)',a:[.5,.97],svg:c=>'<path d="M32 33V61" stroke="#444" stroke-width="3.5" stroke-linecap="round"/><circle cx="32" cy="19" r="15" fill="none" '+SOMBRA+'/><circle cx="32" cy="19" r="15" fill="'+c+'" stroke="'+(claro(c)?'#555':'#fff')+'" stroke-width="3"/><circle cx="26.5" cy="13.5" r="4.5" fill="#fff" opacity=".55"/>'},
   bandera:{n:'Bandera',a:[.22,.95],svg:c=>'<path d="M14 61V6" stroke="#444" stroke-width="3.5" stroke-linecap="round"/><path d="M16 7h36l-8 12 8 12H16z" fill="none" '+SOMBRA+'/><path d="M16 7h36l-8 12 8 12H16z" fill="'+c+'" stroke="'+(claro(c)?'#555':'#fff')+'" stroke-width="2.5" stroke-linejoin="round"/>'},
   circulo:{n:'Círculo',svg:c=>'<circle cx="32" cy="32" r="22" fill="none" '+SOMBRA+'/><circle cx="32" cy="32" r="22" fill="'+c+'" stroke="'+(claro(c)?'#555':'#fff')+'" stroke-width="4"/>'},
   cuadrado:{n:'Cuadrado',svg:c=>'<rect x="11" y="11" width="42" height="42" rx="6" fill="none" '+SOMBRA+'/><rect x="11" y="11" width="42" height="42" rx="6" fill="'+c+'" stroke="'+(claro(c)?'#555':'#fff')+'" stroke-width="4"/>'},
@@ -1384,7 +1423,7 @@ $('eSi').onclick=async()=>{
   let r; try{ r=await renderIcono(ed.forma,ed.color,ed.orig); }catch(err){ aviso('No se pudo crear el icono'); return; }
   const esNuevo=!ed.k||ed.k==='_def', k=esNuevo?'u'+Date.now().toString(36):ed.k;
   const prev=datos.estilos[k]||{};
-  const e=Object.assign({},prev,{nombre,forma:ed.forma,colorSel:ed.color,color:ed.color,img:r.img,size:ed.size,tintado:false});
+  const e=Object.assign({},prev,{editado:true,nombre,forma:ed.forma,colorSel:ed.color,color:ed.color,img:r.img,size:ed.size,tintado:false});
   if(ed.orig) e.orig=ed.orig;
   if(ed.forma!=='orig'){ e.ax=r.ax; e.ay=r.ay; }
   else { if(e.ax==null) e.ax=.5; if(e.ay==null) e.ay=.5; }
@@ -1631,12 +1670,14 @@ $('fOrig').onclick=()=>{
 const DEF_IDX={};
 Object.keys(window.DEFECTOS||{}).forEach(g=>DEFECTOS[g].forEach(d=>{ DEF_IDX[g+'|'+d.c]=d; }));
 const defInfo=(g,c)=>DEF_IDX[g+'|'+c];
-const FORMA_GUIA={apoyo:'MT',poste:'MT',linea:'MT',seccionador:'MT',fusible:'MT',interruptor:'MT',ct:'PT',trafo:'PT',armario:'BT'};
+const FORMA_GUIA={chincheta:'PT',marcador:'CD',apoyo:'MT',poste:'MT',linea:'MT',seccionador:'MT',fusible:'MT',interruptor:'MT',ct:'PT',trafo:'PT',armario:'BT'};
 let guiaSel='MT', defAbierto=null;
 try{ guiaSel=localStorage.getItem('kmzrev:guia')||'MT'; }catch(e){}
 function guiaPorDefecto(p){
   const e=est(p.id); if(e.inst && GUIAS[e.inst]) return e.inst;
-  const ti=datos.estilos[p.estilo]; if(ti && FORMA_GUIA[ti.forma]) return FORMA_GUIA[ti.forma];
+  const ti=datos.estilos[p.estilo];
+  if(ti && FORMA_GUIA[ti.forma]) return FORMA_GUIA[ti.forma];
+  if(ti && FORMA_GUIA[ti.formaKmz] && (ti.forma==='orig'||!ti.forma)) return FORMA_GUIA[ti.formaKmz];
   return GUIAS[guiaSel]?guiaSel:'MT';
 }
 function pintarDefsFicha(){
@@ -2198,7 +2239,7 @@ async function abrirTrabajo(tid){
       datos=prev; modo=prevModo;
     } finally { $('cargando').classList.remove('ver'); $('cargando').textContent='Leyendo archivo…'; }
   }
-  datos=d; modo=tid; ocultos=new Set(); guardarOcultos();
+  datos=d; modo=tid; ocultos=new Set(); guardarOcultos(); migrarTipos(datos);
   try{ localStorage.setItem('kmzrev:actual',tid); }catch(e){}
   await guardarTrabajo(true);
   ultimoOk=0; errorSync=''; grupoEquipo.clearLayers();
@@ -2227,7 +2268,7 @@ async function cambiarALocal(){
 async function inicio(){
   let act='local'; try{ act=localStorage.getItem('kmzrev:actual')||'local'; }catch(e){}
   if(act!=='local'){
-    try{ const d=await IDB.get('t:'+act); if(d&&d.sync){ datos=d; modo=act; dibujarTodo(true); pintarChip(); if(cfgEq.pos) seguirUbicacion(); sincronizar(); return; } }catch(e){}
+    try{ const d=await IDB.get('t:'+act); if(d&&d.sync){ datos=d; modo=act; if(migrarTipos(datos)) guardar(); dibujarTodo(true); pintarChip(); if(cfgEq.pos) seguirUbicacion(); sincronizar(); return; } }catch(e){}
   }
   if(cargarLocal() && datos.puntos.length){ dibujarTodo(true); return; }
   for(const n of ['centros.kmz','centros.kml']){
