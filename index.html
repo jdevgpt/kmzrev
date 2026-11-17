@@ -159,6 +159,7 @@
   /* Capas */
   .capa{display:flex;align-items:center;gap:12px;padding:11px 4px;border-top:1px solid var(--gris);cursor:pointer}
   .capa:first-child{border-top:none}
+  .capa.inc{opacity:.6}
   .capa input{width:22px;height:22px;accent-color:var(--naranja);flex:none}
   .capa b{display:block}
   .capa small{color:var(--texto-sec);font-size:.8rem}
@@ -463,6 +464,7 @@
       <div class="seccion" style="margin-top:6px">Fondo</div>
       <div id="kBases"></div>
       <div class="seccion">Encima</div>
+      <div id="kEncima"></div>
       <label class="capa"><input type="checkbox" id="kCatastro"><span><b>Parcelas del Catastro</b><small>Solo con conexión</small></span></label>
       <div class="seccion">Mapas sin cobertura</div>
       <div class="caja-desc">
@@ -1028,13 +1030,22 @@ $('mCargar').onclick=elegirArchivo;
 /* ================= Mapa ================= */
 const mapa=L.map('mapa',{zoomControl:true}).setView([38.6,-6.6],8);
 const IGN_WMTS=(serv,capa,fmt)=>'https://www.ign.es/wmts/'+serv+'?request=GetTile&service=WMTS&VERSION=1.0.0&Layer='+capa+'&Style=default&Format='+fmt+'&TileMatrixSet=GoogleMapsCompatible&TileMatrix={z}&TileRow={y}&TileCol={x}';
+// Capas para poner ENCIMA del fondo (transparentes)
+const ENCIMA={
+  ignNombres:{nombre:'Nombres y carreteras (IGN)',desc:'Pueblos, calles, carreteras y caminos · descargable',url:IGN_WMTS('ign-base','IGNBaseOrto','image/png'),opt:{maxZoom:20,maxNativeZoom:17,zIndex:3,attribution:'© IGN'},descargable:true,mb:0.008},
+  esriNombres:{nombre:'Nombres de lugares (Esri)',desc:'Pueblos y límites, cualquier país',url:'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',opt:{maxZoom:20,maxNativeZoom:19,zIndex:4,attribution:'© Esri'}},
+  esriCarreteras:{nombre:'Carreteras (Esri)',desc:'Carreteras y calles con sus nombres',url:'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',opt:{maxZoom:20,maxNativeZoom:19,zIndex:4,attribution:'© Esri'}}
+};
+Object.values(ENCIMA).forEach(c=>c.capa=L.tileLayer(c.url,c.opt));
 const BASES={
   calles:{nombre:'Callejero',desc:'OpenStreetMap',url:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',opt:{maxZoom:20,maxNativeZoom:19,attribution:'© OpenStreetMap'}},
+  hibrido:{nombre:'Híbrido (ortofoto + nombres)',desc:'Foto aérea PNOA con pueblos, calles y carreteras del IGN · descargable',url:IGN_WMTS('pnoa-ma','OI.OrthoimageCoverage','image/jpeg'),opt:{maxZoom:20,maxNativeZoom:19,attribution:'PNOA © IGN'},descargable:true,extra:'ignNombres'},
   pnoa:{nombre:'Ortofoto PNOA (IGN)',desc:'Foto aérea oficial de España · descargable',url:IGN_WMTS('pnoa-ma','OI.OrthoimageCoverage','image/jpeg'),opt:{maxZoom:20,maxNativeZoom:19,attribution:'PNOA © IGN'},descargable:true},
   ign:{nombre:'Mapa IGN',desc:'Mapa topográfico con caminos · descargable',url:IGN_WMTS('ign-base','IGNBaseTodo','image/jpeg'),opt:{maxZoom:20,maxNativeZoom:17,attribution:'© IGN'},descargable:true},
   sat:{nombre:'Satélite (Esri)',desc:'Imagen satélite mundial',url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',opt:{maxZoom:20,maxNativeZoom:19,attribution:'© Esri'}}
 };
-Object.values(BASES).forEach(b=>b.capa=L.tileLayer(b.url,b.opt));
+Object.values(BASES).forEach(b=>{ const t=L.tileLayer(b.url,Object.assign({zIndex:1},b.opt));
+  b.capa=b.extra?L.layerGroup([t,L.tileLayer(ENCIMA[b.extra].url,ENCIMA[b.extra].opt)]):t; });
 let capaBase='calles';
 try{ capaBase=localStorage.getItem('kmzrev:capa')||'calles'; }catch(e){}
 if(!BASES[capaBase]) capaBase='calles';
@@ -1043,6 +1054,13 @@ const capaCatastro=L.tileLayer.wms('https://ovc.catastro.meh.es/Cartografia/WMS/
 let verCatastro=false;
 try{ verCatastro=localStorage.getItem('kmzrev:catastro')==='1'; }catch(e){}
 if(verCatastro) capaCatastro.addTo(mapa);
+let encima=new Set();
+try{ encima=new Set(JSON.parse(localStorage.getItem('kmzrev:encima')||'[]').filter(k=>ENCIMA[k])); }catch(e){}
+function aplicarEncima(){
+  Object.keys(ENCIMA).forEach(k=>{ const on=encima.has(k) && BASES[capaBase].extra!==k;
+    if(on && !mapa.hasLayer(ENCIMA[k].capa)) ENCIMA[k].capa.addTo(mapa); if(!on && mapa.hasLayer(ENCIMA[k].capa)) mapa.removeLayer(ENCIMA[k].capa); });
+}
+aplicarEncima();
 
 const grupoLineas=L.layerGroup().addTo(mapa);
 const grupoPuntos=L.layerGroup().addTo(mapa);
@@ -1138,7 +1156,7 @@ const Ctl=L.Control.extend({options:{position:'topright'},onAdd(){
   L.DomEvent.disableClickPropagation(c); return c; }});
 mapa.addControl(new Ctl());
 function pintarControles(){
-  $('cCapa').classList.toggle('activo',capaBase!=='calles'||verCatastro);
+  $('cCapa').classList.toggle('activo',capaBase!=='calles'||verCatastro||encima.size>0);
   $('cNombres').classList.toggle('activo',nombresVisibles);
   const nTipos=new Set(datos.puntos.map(p=>p.estilo||'_def')).size;
   $('cTipos').style.display=(datos.puntos.length||Object.keys(datos.estilos).length)?'':'none';
@@ -1149,12 +1167,20 @@ $('kCerrar').onclick=()=>cerrar('mCapas');
 function pintarCapas(){
   $('kBases').innerHTML=Object.keys(BASES).map(k=>'<label class="capa"><input type="radio" name="base" value="'+k+'"'+(k===capaBase?' checked':'')+'><span><b>'+esc(BASES[k].nombre)+'</b><small>'+esc(BASES[k].desc)+'</small></span></label>').join('');
   $('kCatastro').checked=verCatastro;
+  $('kEncima').innerHTML=Object.keys(ENCIMA).map(k=>{ const inc=BASES[capaBase].extra===k;
+    return '<label class="capa'+(inc?' inc':'')+'"><input type="checkbox" data-k="'+k+'"'+(encima.has(k)||inc?' checked':'')+(inc?' disabled':'')+'><span><b>'+esc(ENCIMA[k].nombre)+'</b><small>'+esc(inc?'Ya incluido en el fondo Híbrido':ENCIMA[k].desc)+'</small></span></label>'; }).join('');
 }
+$('kEncima').addEventListener('change',e=>{
+  const k=e.target.dataset.k; if(!k) return;
+  if(e.target.checked) encima.add(k); else encima.delete(k);
+  try{ localStorage.setItem('kmzrev:encima',JSON.stringify([...encima])); }catch(err){}
+  aplicarEncima(); pintarControles(); infoDescargas();
+});
 $('kBases').addEventListener('change',e=>{
   const k=e.target.value; if(!BASES[k]||k===capaBase) return;
-  mapa.removeLayer(BASES[capaBase].capa); BASES[k].capa.addTo(mapa); BASES[k].capa.bringToBack&&BASES[k].capa.bringToBack(); capaBase=k;
+  mapa.removeLayer(BASES[capaBase].capa); BASES[k].capa.addTo(mapa); capaBase=k;
   try{ localStorage.setItem('kmzrev:capa',k); }catch(err){}
-  pintarControles(); infoDescargas();
+  aplicarEncima(); pintarCapas(); pintarControles(); infoDescargas();
 });
 $('kCatastro').addEventListener('change',()=>{
   verCatastro=$('kCatastro').checked;
@@ -1174,7 +1200,14 @@ function teselasCaja(s,w,n,e,z,set){
   const x0=lon2x(w,z),x1=lon2x(e,z),y0=lat2y(n,z),y1=lat2y(s,z);
   for(let x=x0;x<=x1;x++) for(let y=y0;y<=y1;y++) set.add(z+'/'+x+'/'+y);
 }
-function urlTesela(base,t){ const [z,x,y]=t.split('/'); return BASES[base].url.replace('{z}',z).replace('{x}',x).replace('{y}',y); }
+function urlDe(plantilla,t){ const [z,x,y]=t.split('/'); return plantilla.replace('{z}',z).replace('{x}',x).replace('{y}',y); }
+// Capas que se descargan: el fondo y las capas IGN de encima (nombres)
+function capasADescargar(base){
+  const l=[{url:BASES[base].url,maxZ:BASES[base].opt.maxNativeZoom||19,mb:base==='ign'?0.015:0.022,nombre:BASES[base].nombre}];
+  const ex=new Set(encima); if(BASES[base].extra) ex.add(BASES[base].extra);
+  ex.forEach(k=>{ if(ENCIMA[k].descargable) l.push({url:ENCIMA[k].url,maxZ:ENCIMA[k].opt.maxNativeZoom||19,mb:ENCIMA[k].mb||0.01,nombre:ENCIMA[k].nombre}); });
+  return l;
+}
 function maxZBase(base){ return Math.min(zMaxDesc, BASES[base].opt.maxNativeZoom||19); }
 function planPuntos(base){
   const set=new Set(), pts=datos.puntos.map(posDe); if(!pts.length) return set;
@@ -1195,20 +1228,22 @@ function planVista(base){
 }
 async function infoDescargas(){
   let txt='Descarga la <b>ortofoto o el mapa del IGN</b> de tu zona de trabajo para verlo sin conexión. Hazlo con wifi.';
-  if(!BASES[capaBase].descargable) txt='Para descargar, elige arriba <b>Ortofoto PNOA</b> o <b>Mapa IGN</b> (el resto de mapas no permiten descargarse).';
+  if(!BASES[capaBase].descargable) txt='Para descargar, elige arriba <b>Híbrido</b>, <b>Ortofoto PNOA</b> o <b>Mapa IGN</b> (el resto de mapas no permiten descargarse).';
+  else if(capasADescargar(capaBase).length>1) txt+=' Se incluyen también los <b>nombres y carreteras del IGN</b>.';
   try{ if('caches' in window){ const n=(await (await caches.open(CACHE_TESELAS)).keys()).length; if(n) txt+='<br><br>Tienes <b>'+n.toLocaleString('es')+'</b> trozos de mapa descargados.'; } }catch(e){}
   $('kInfo').innerHTML=txt;
 }
 async function descargar_(plan){
   if(descargando) return;
-  if(!BASES[capaBase].descargable){ aviso('Elige primero Ortofoto PNOA o Mapa IGN'); return; }
+  if(!BASES[capaBase].descargable){ aviso('Elige primero Híbrido, Ortofoto PNOA o Mapa IGN'); return; }
   if(!('caches' in window)){ aviso('Este navegador no permite guardar mapas'); return; }
-  const base=capaBase, lista=[...plan];
-  if(!lista.length){ aviso('No hay nada que descargar'); return; }
-  const MAX=25000;
+  const base=capaBase, teselas=[...plan], capas=capasADescargar(base);
+  if(!teselas.length){ aviso('No hay nada que descargar'); return; }
+  const lista=[]; let mbs=0;
+  teselas.forEach(t=>{ const z=+t.split('/')[0]; capas.forEach(c=>{ if(z<=c.maxZ){ lista.push(urlDe(c.url,t)); mbs+=c.mb; } }); });
+  const MAX=40000;
   if(lista.length>MAX){ aviso('Zona demasiado grande ('+lista.length.toLocaleString('es')+' trozos). Baja el detalle o acerca el mapa.'); return; }
-  const mb=Math.round(lista.length*(base==='pnoa'?0.022:0.015));
-  confirmar('Descargar mapa','Se descargarán '+lista.length.toLocaleString('es')+' trozos de "'+BASES[base].nombre+'" (unos '+mb+' MB). Mejor con wifi.',()=>ejecutarDescarga(base,lista),'Descargar');
+  confirmar('Descargar mapa','Se descargarán '+lista.length.toLocaleString('es')+' trozos ('+capas.map(c=>c.nombre).join(' + ')+'), unos '+Math.max(1,Math.round(mbs))+' MB. Mejor con wifi.',()=>ejecutarDescarga(base,lista),'Descargar');
 }
 async function ejecutarDescarga(base,lista){
   const cache=await caches.open(CACHE_TESELAS);
@@ -1221,7 +1256,7 @@ async function ejecutarDescarga(base,lista){
   pedirPersistencia();
   async function trabajador(){
     while(i<lista.length && !yo_.cancelado){
-      const url=urlTesela(base,lista[i++]);
+      const url=lista[i++];
       try{
         if(!(await cache.match(url))){
           const r=await fetch(url,{mode:'cors',credentials:'omit'});

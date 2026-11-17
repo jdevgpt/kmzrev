@@ -9,8 +9,8 @@ Abre https://jdevgpt.github.io/kmzrev/ en **Chrome** (Android) → menú ⋮ →
 Una vez instalada se abre como una app y **funciona sin cobertura**.
 
 ## Mapas sin cobertura
-Botón de **capas** del mapa: Callejero, **Ortofoto PNOA (IGN)**, **Mapa IGN**, Satélite y parcelas del **Catastro** (solo con conexión).
-Con Ortofoto PNOA o Mapa IGN elegido, en "Mapas sin cobertura" puedes descargar **alrededor de tus puntos** o **lo que ves en pantalla**, con tres niveles de detalle. Hazlo con wifi.
+Botón de **capas** del mapa: Callejero, **Híbrido** (ortofoto PNOA con nombres, calles y carreteras del IGN), **Ortofoto PNOA (IGN)**, **Mapa IGN** y Satélite (Esri). Encima se pueden poner **nombres y carreteras del IGN**, **nombres de lugares** y **carreteras de Esri** (para el satélite) y las parcelas del **Catastro** (solo con conexión).
+Con Híbrido, Ortofoto PNOA o Mapa IGN elegido (los nombres del IGN se descargan también), en "Mapas sin cobertura" puedes descargar **alrededor de tus puntos** o **lo que ves en pantalla**, con tres niveles de detalle. Hazlo con wifi.
 
 ## Uso
 1. Abre la app y pulsa **Cargar KMZ / KML**.
