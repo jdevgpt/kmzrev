@@ -107,7 +107,10 @@
     padding:10px 12px calc(10px + env(safe-area-inset-bottom));z-index:1000}
   .prog-fila{display:flex;align-items:center;gap:10px;margin-bottom:8px}
   .prog{flex:1;height:8px;border-radius:6px;background:var(--gris);overflow:hidden}
-  .prog i{display:block;height:100%;width:0;background:var(--verde);transition:width .3s}
+  .prog{display:flex}
+  .prog i{display:block;flex:none;height:100%;width:0;background:var(--verde);transition:width .3s}
+  .prog i.sb{background:var(--rojo)}
+  .prog-txt .sbt-t{color:var(--rojo);font-weight:700}
   .prog-txt{font-size:.85rem;font-weight:700;white-space:nowrap}
   .prog-txt b{color:var(--verde)}
   .fila2{display:flex;gap:8px;align-items:center}
@@ -402,7 +405,7 @@
 
 <div class="barra">
   <div class="prog-fila">
-    <div class="prog"><i id="progBar"></i></div>
+    <div class="prog"><i id="progBar"></i><i id="progBarSb" class="sb"></i></div>
     <div class="prog-txt" id="progTxt"><b>0</b> / 0 realizados</div>
   </div>
   <div class="fila2">
@@ -1118,7 +1121,7 @@ function visible(p){
   if(!enLinea(p)) return false;
   if(p.estilo && ocultos.has(p.estilo)) return false;
   if(!p.estilo && ocultos.has('_def')) return false;
-  return filtro==='todos' || (filtro==='hecho')===hecho(p.id);
+  return filtro==='todos' || (filtro==='hecho')===avance(p);
 }
 function dibujarTodo(encuadrar){
   cargarLinea();
@@ -1148,12 +1151,16 @@ function aplicarFiltro(){
   datos.puntos.forEach(p=>{ const m=marcadores[p.id]; if(!m) return;
     if(visible(p)){ if(!grupoPuntos.hasLayer(m)) m.addTo(grupoPuntos); } else grupoPuntos.removeLayer(m); });
 }
+// Avance: realizados + marcados Sin Baja Tensión
+const avance=p=>hecho(p.id)||!!est(p.id).sinBT;
 function actualizarProgreso(){
   const base=datos.puntos.filter(enLinea), t=base.length, h=base.filter(p=>hecho(p.id)).length;
-  $('progTxt').innerHTML='<b>'+h+'</b> / '+t+' realizados';
-  $('progBar').style.width=(t?h/t*100:0)+'%';
-  $('filtro').querySelector('[data-f=pend]').textContent='Pendientes ('+(t-h)+')';
-  $('filtro').querySelector('[data-f=hecho]').textContent='Realizados ('+h+')';
+  const sb=base.filter(p=>est(p.id).sinBT).length, hv=base.filter(p=>hecho(p.id)&&!est(p.id).sinBT).length, av=hv+sb;
+  $('progTxt').innerHTML='<b>'+av+'</b> / '+t+' realizados'+(sb?' · <span class="sbt-t">'+sb+' sin BT</span>':'');
+  $('progBar').style.width=(t?hv/t*100:0)+'%';
+  $('progBarSb').style.width=(t?sb/t*100:0)+'%';
+  $('filtro').querySelector('[data-f=pend]').textContent='Pendientes ('+(t-av)+')';
+  $('filtro').querySelector('[data-f=hecho]').textContent='Realizados ('+av+')';
   if(typeof pintarLineaChip==='function' && $('lineaChip')) pintarLineaChip();
 }
 // Nombres: se ocultan con el mapa muy alejado para no saturar
@@ -1307,7 +1314,7 @@ $('cTodo').onclick=encuadrarTodo;
 function arbolLineas(){
   const m={}; let sin=null;
   datos.puntos.forEach(p=>{
-    const h=hecho(p.id), c=p.carpeta||'';
+    const h=avance(p), c=p.carpeta||'';
     if(!c){ sin=sin||{t:0,h:0}; sin.t++; if(h) sin.h++; return; }
     const partes=c.split(' › ');
     for(let i=1;i<=partes.length;i++){ const k=partes.slice(0,i).join(' › '); const o=m[k]=m[k]||{k,n:partes[i-1],nivel:i-1,t:0,h:0}; o.t++; if(h) o.h++; }
@@ -1320,7 +1327,7 @@ function arbolLineas(){
   return l;
 }
 function pintarLineas(){
-  const q=$('liBusca').value.trim().toLowerCase(), tot=datos.puntos.length, th=datos.puntos.filter(p=>hecho(p.id)).length;
+  const q=$('liBusca').value.trim().toLowerCase(), tot=datos.puntos.length, th=datos.puntos.filter(avance).length;
   const fila=(k,n,sub,nivel,t,h)=>'<div class="lin-it'+(lineaSel===k?' on':'')+'" data-k="'+esc(k)+'" style="padding-left:'+(4+Math.max(0,nivel)*16)+'px"><div class="tn">'+esc(n)+(sub?'<small>'+esc(sub)+'</small>':'')+'</div>'+
     '<span class="barrita"><i style="width:'+(t?h/t*100:0)+'%"></i></span><span class="cnt"><b>'+h+'</b>/'+t+'</span></div>';
   let html=q?'':fila('','Todas las líneas','',0,tot,th);
@@ -1340,7 +1347,7 @@ function pintarLineaChip(){
   const c=$('lineaChip'); if(!c) return;
   if(!lineaSel){ c.classList.remove('ver'); return; }
   const n=lineaSel===SIN_CARPETA?'Sin carpeta':lineaSel.split(' › ').pop();
-  const base=datos.puntos.filter(enLinea), h=base.filter(p=>hecho(p.id)).length;
+  const base=datos.puntos.filter(enLinea), h=base.filter(avance).length;
   $('lineaChipTxt').textContent=n+' · '+h+'/'+base.length;
   c.classList.add('ver');
 }
@@ -1848,7 +1855,7 @@ $('bLista').onclick=()=>{
 $('lBusca').addEventListener('input',pintarLista);
 function pintarSelLinea(){
   $('lLineaCont').style.display=datos.puntos.some(p=>p.carpeta)?'':'none';
-  const base=datos.puntos.filter(enLinea), h=base.filter(p=>hecho(p.id)).length;
+  const base=datos.puntos.filter(enLinea), h=base.filter(avance).length;
   $('lLineaTxt').textContent=lineaSel?((lineaSel===SIN_CARPETA?'Sin carpeta':lineaSel.split(' › ').pop())+' · '+h+'/'+base.length):'Todas las líneas';
   $('lLinea').classList.toggle('activo',!!lineaSel);
 }
