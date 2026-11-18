@@ -25,7 +25,8 @@ Con Híbrido, Ortofoto PNOA o Mapa IGN elegido (los nombres del IGN se descargan
 5. **Sin Baja Tensión**: en la ficha, el interruptor **Sin Baja Tensión** pone un **aspa roja** sobre el icono del centro y "sin BT" junto a su nombre. Es independiente de realizado. En la Lista se puede filtrar y en el Excel sale en la columna *Baja Tensión*.
 6. **Crear puntos nuevos** con el botón **+**: coloca la cruz en el mapa (o pulsa GPS para ir a tu posición), pon nombre, elige el tipo de icono y la carpeta. Los puntos creados se pueden editar o eliminar desde su ficha, se mantienen al volver a cargar el KMZ y salen en las exportaciones. También puedes empezar sin KMZ.
 6. **Defectos**: en la ficha de cada punto, **Añadir defecto** abre la lista de la guía que toque — **Baja Tensión** (tabla BEL011), **Línea MT** (AED017), **PT intemperie** (FED030) o **CD edificio** (FED029) —, agrupada como en la guía y con buscador por código o texto (busca en las cuatro). Al tocar un defecto se ve el criterio de la guía y se puede añadir con una observación. Los puntos con defectos llevan un número rojo en el mapa, y en la Lista se pueden filtrar.
-7. **Cómo llegar** abre la ruta en Google Maps. El botón de ubicación muestra dónde estás y ordena la lista por cercanía.
+7. **Street View**: botón del muñequito en el mapa (toca el sitio que quieras ver) o **Street View** en la ficha de cada centro. Se abre en Google Maps.
+8. **Cómo llegar** abre la ruta en Google Maps. El botón de ubicación muestra dónde estás y ordena la lista por cercanía.
 
 ## Trabajar en equipo
 Varios compañeros pueden abrir los mismos trabajos (KMZ), marcar centros, anotar defectos, reservar con **"Voy yo"** y verse en el mapa. Todo se guarda en una **hoja de Google** vuestra (privada) y cada móvil se sincroniza solo cada pocos segundos; sin cobertura se sigue trabajando y los cambios se envían al volver la red.

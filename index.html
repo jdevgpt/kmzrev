@@ -261,6 +261,13 @@
   .linea-chip .tn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
   .linea-chip .xx{flex:none;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:14px;line-height:1}
   body.mover .linea-chip{display:none}
+  .sv-aviso{position:absolute;left:10px;right:62px;top:10px;z-index:960;display:none;align-items:center;gap:10px;background:#FFC107;color:#3A2A00;border-radius:12px;padding:9px 10px 9px 12px;
+    box-shadow:0 2px 10px rgba(0,0,0,.25);font-size:.88rem;font-weight:700}
+  .sv-aviso button{flex:none;height:32px;padding:0 12px;border-radius:9px;border:none;background:rgba(0,0,0,.12);font:700 .85rem inherit;color:inherit;cursor:pointer}
+  body.modo-sv .sv-aviso{display:flex}
+  body.modo-sv .trab-chip{display:none}
+  body.modo-sv #mapa{cursor:crosshair}
+  .ctl-btn.sv-on{background:#FFC107;color:#3A2A00}
   .lin-it{display:flex;align-items:center;gap:10px;padding:11px 4px;border-top:1px solid var(--gris);cursor:pointer}
   .lin-it:first-child{border-top:none}
   .lin-it.on{background:var(--naranja-claro);border-radius:10px}
@@ -379,6 +386,7 @@
 <div class="zona">
   <div id="mapa"></div>
   <div class="act-banner" id="actBanner"><span>Hay una versión nueva de la app</span><button id="actBtn">Actualizar</button></div>
+  <div class="sv-aviso" id="svAviso"><span style="flex:1">Toca el mapa donde quieras ver Street View</span><button id="svNo">Cancelar</button></div>
   <button class="linea-chip" id="lineaChip"><span class="tn" id="lineaChipTxt"></span><span class="xx" id="lineaChipX" aria-label="Quitar filtro">✕</span></button>
   <button class="trab-chip" id="trabChip"><span class="punto-st" id="chipSt"></span><span class="tn" id="chipNom"></span><span class="st" id="chipTxt"></span></button>
   <svg class="mira" viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="23" cy="23" r="9"/><path d="M23 2v12M23 32v12M2 23h12M32 23h12"/><circle cx="23" cy="23" r="1.6" fill="currentColor"/></svg>
@@ -444,6 +452,7 @@
         <div class="reub-t">Ubicación <small id="fReubicado"></small></div>
         <div class="fila-b">
           <button class="mini" id="fGps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Aquí (mi GPS)</button>
+          <a class="mini" id="fSV" target="_blank" rel="noopener" style="text-decoration:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.6" r="2.4"/><path d="M9.2 9.2h5.6l1 5.3h-2.3l-.7 6.9h-2.6l-.7-6.9H7.2z"/></svg>Street View</a>
           <button class="mini" id="fMover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M12 2l-3 3M12 2l3 3M12 22l-3-3M12 22l3-3M2 12l3-3M2 12l3 3M22 12l-3-3M22 12l-3 3"/></svg>Mover en el mapa</button>
         </div>
         <div class="fila-b" id="fOrigCont"><button class="mini tenue" id="fOrig">Volver a la posición original</button></div>
@@ -1174,6 +1183,7 @@ const Ctl=L.Control.extend({options:{position:'topright'},onAdd(){
    '<button class="ctl-btn" id="cCapa" title="Satélite / Calles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3 2.5 8 12 13l9.5-5z"/><path d="m2.5 12.5 9.5 5 9.5-5M2.5 16.5l9.5 5 9.5-5" opacity=".6"/></svg></button>'+
    '<button class="ctl-btn" id="cNombres" title="Mostrar u ocultar nombres">Aa</button>'+
    '<button class="ctl-btn" id="cTipos" title="Tipos de punto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.5" cy="6.5" r="3"/><path d="M14 4h7v7h-7z"/><path d="M6.5 14l3.5 6h-7z"/><circle cx="17.5" cy="17.5" r="3.5"/></svg></button>'+
+   '<button class="ctl-btn" id="cSV" title="Street View"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.6" r="2.4"/><path d="M9.2 9.2h5.6l1 5.3h-2.3l-.7 6.9h-2.6l-.7-6.9H7.2z"/></svg></button>'+
    '<button class="ctl-btn" id="cYo" title="Mi ubicación"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>'+
    '<button class="ctl-btn" id="cTodo" title="Ver todos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>';
   L.DomEvent.disableClickPropagation(c); return c; }});
@@ -1309,6 +1319,17 @@ $('cNombres').onclick=()=>{
   pintarControles(); aviso(nombresVisibles?'Nombres visibles (al acercar el mapa)':'Nombres ocultos');
 };
 $('cTodo').onclick=encuadrarTodo;
+
+/* ================= Street View (se abre en Google Maps) ================= */
+function urlStreetView(lat,lng){ return 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint='+(+lat).toFixed(6)+','+(+lng).toFixed(6); }
+function modoSV(on){ document.body.classList.toggle('modo-sv',on); $('cSV').classList.toggle('sv-on',on); }
+$('cSV').onclick=()=>modoSV(!document.body.classList.contains('modo-sv'));
+$('svNo').onclick=()=>modoSV(false);
+mapa.on('click',e=>{
+  if(!document.body.classList.contains('modo-sv')) return;
+  modoSV(false);
+  window.open(urlStreetView(e.latlng.lat,e.latlng.lng),'_blank','noopener');
+});
 
 /* ================= Filtro por línea ================= */
 function arbolLineas(){
@@ -1571,6 +1592,7 @@ function pintarFicha(){
   $('fOrigCont').style.display=(movido(p)&&!p.nuevo)?'':'none';
   $('fPropio').style.display=p.nuevo?'':'none';
   $('fRuta').href='https://www.google.com/maps/dir/?api=1&destination='+pos[0]+','+pos[1];
+  $('fSV').href=urlStreetView(pos[0],pos[1]);
 }
 function abrirFicha(id){
   const p=datos.puntos.find(x=>x.id===id); if(!p) return;
