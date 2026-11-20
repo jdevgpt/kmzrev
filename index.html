@@ -1118,7 +1118,7 @@ function iconoDe(p){
   const e=datos.estilos[p.estilo], ok=hecho(p.id);
   const nd=(est(p.id).def||[]).length;
   const rv=est(p.id).reserva, rsv=!!(rv && !ok);
-  const sb=!!est(p.id).sinBT, cb=!sb&&!!est(p.id).conBT;
+  const sb=!!est(p.id).sinBT, cb=!sb&&!!est(p.id).conBT&&!ok; // con BT + realizado: solo el check, para no recargar el mapa
   const nm='<span class="nm">'+esc(p.nombre)+(sb?'<span class="sb">sin BT</span>':'')+(cb?'<span class="cb">con BT</span>':'')+(rsv?'<span class="rv">→ '+esc(rv.por===cfgEq.nombre?'Tú':rv.por)+'</span>':'')+'</span>'+(sb?'<i class="bt sin"></i>':cb?'<i class="bt con"></i>':'')+'<i class="chk"></i>'+(nd?'<i class="ndef">'+nd+'</i>':'');
   if(!e){
     return L.divIcon({className:'kmk',iconSize:[18,18],iconAnchor:[9,9],html:'<div class="mk def'+(ok?' ok':'')+(rsv?' rsv':'')+'">'+nm+'</div>'});
